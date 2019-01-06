@@ -33,7 +33,7 @@
 
 #define BASIC_MODE_BANK 0
 
-#define PREV_BANK_BUTTON 2
-#define NEXT_BANK_BUTTON 3
+#define PREV_BANK_BUTTON 8
+#define NEXT_BANK_BUTTON 9
 
 #endif // GOATROLLER_H

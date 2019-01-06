@@ -49,32 +49,46 @@ void setup() {
 }
 
 void loop() {
-    // int * buttons_state;
     button_reader.read();
     int button_actionned = button_reader.get_actionned_button();
     if (button_actionned >= 0) {
+        int action = button_reader.get_action_for_button(button_actionned);
         Serial.print("Button Actionned: ");
         Serial.print(button_actionned);
         Serial.print(" With State ");
         Serial.println(button_reader.get_action_for_button(button_actionned));
-    }
+        if (action == BUTTON_STATE_PRESSED) {
+            if (button_actionned == PREV_BANK_BUTTON) {
+                if (mode == EDIT_MODE) {
+                    save_patch();
+                } else {
+
+                }
+            } else if (button_actionned == NEXT_BANK_BUTTON) {
+                if (mode == EDIT_MODE) {
+                    cancel_edit();
+                } else {
+
+                }
+            } else {
+                switch(mode) {
+                    case BASIC_MODE: {
+                        read_basic_mode(button_actionned);
+                        break;            
+                    }
+                    case BANK_MODE: {
+                        read_bank_mode(button_actionned);
+                        break;
+                    }
+                    case EDIT_MODE: {
+                        read_edit_mode(button_actionned);
+                        break;
+                    }
+                }
+            }
+        } else if (action == BUTTON_STATE_LONG_PRESSED) {
     delay(1000);
     return;
-
-    switch(mode) {
-        case BASIC_MODE: {
-            read_basic_mode();
-            break;            
-        }
-        case BANK_MODE: {
-            read_bank_mode();
-            break;
-        }
-        case EDIT_MODE: {
-            read_edit_mode();
-            break;
-        }
-    }
 }
 
 void read_basic_mode() {
@@ -127,6 +141,14 @@ void read_bank_mode() {
 
 void read_edit_mode() {
 
+}
+
+void save_patch() {
+
+}
+
+void cancel_edit() {
+    
 }
 
 void select_patch_and_effect(byte patch, byte effects) {
