@@ -52,17 +52,17 @@ void loop() {
     int button_actionned = button_reader.get_actionned_button();
     if (button_actionned >= 0) {
         int action = button_reader.get_action_for_button(button_actionned);
-        Serial.print("Button Actionned: ");
-        Serial.print(button_actionned);
-        Serial.print(" With State ");
-        Serial.println(button_reader.get_action_for_button(button_actionned));
+        // Serial.print("Button Actionned: ");
+        // Serial.print(button_actionned);
+        // Serial.print(" With State ");
+        // Serial.println(button_reader.get_action_for_button(button_actionned));
         if (action == BUTTON_STATE_PRESSED) {
             if (button_actionned == PREV_BANK_BUTTON) {
                 if (mode == EDIT_MODE) {
                     save_patch();
                 } else {
-                    Serial.println("Previous Bank");
                     bank_manager.previous();
+                    Serial.println(String("Previous Bank: ") + bank_manager.get_current_bank_number());
                     if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
                         mode = BASIC_MODE;
                     } else {
@@ -73,8 +73,8 @@ void loop() {
                 if (mode == EDIT_MODE) {
                     cancel_edit();
                 } else {
-                    Serial.println("Next Bank");
                     bank_manager.next();
+                    Serial.println(String("Next Bank: ") + bank_manager.get_current_bank_number());
                     if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
                         mode = BASIC_MODE;
                     } else {
@@ -98,13 +98,17 @@ void loop() {
                         break;
                     }
                     case EDIT_MODE: {
+                        Serial.println("Edit Mode");
                         read_edit_mode(button_actionned);
                         break;
                     }
                 }
             }
-        } else if (action == BUTTON_STATE_LONG_PRESSED) {
-
+        } else if (action == BUTTON_STATE_LONG_PRESSED && mode == BANK_MODE) {
+            if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
+                Serial.println("Now in EDIT MODE");
+                mode = EDIT_MODE;
+            }
         }
     }
     delay(300);
@@ -125,15 +129,26 @@ void read_basic_mode(int button_actionned) {
 }
 
 void read_edit_mode(int button_actionned) {
-
+    if (bitRead(current_effects, button_actionned)) {
+        Serial.println(String("Edit Mode: Deactivate ") + button_actionned);
+        bitWrite(current_effects, button_actionned, LOW);
+    } else {
+        Serial.println(String("Edit Mode: Activate ") + button_actionned);
+        bitWrite(current_effects, button_actionned, HIGH);
+    }
+    select_patch_and_effect(current_patch, current_effects);
 }
 
 void save_patch() {
-
+    Serial.println("Save Effects");
+    bank_manager.get_current_bank()->get_selected_patch()->save(current_effects);
+    cancel_edit();
 }
 
 void cancel_edit() {
-    
+    Serial.println("Cancel Edit");
+    mode = BANK_MODE;
+    select_bank_patch(bank_manager.get_current_bank()->get_selected_patch_number());
 }
 
 void select_patch_and_effect(byte patch, byte effects) {

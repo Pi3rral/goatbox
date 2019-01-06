@@ -24,6 +24,7 @@ void Patch::load() {
 
 void Patch::save(int _selected_effects) {
     selected_effects = _selected_effects;
+    Serial.println(String("Save effects ") + selected_effects + String(" to address ") + eeprom_address);
     EEPROM.write(eeprom_address, selected_effects);
 }
 
