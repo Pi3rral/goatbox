@@ -62,23 +62,19 @@ void loop() {
                 if (mode == EDIT_MODE) {
                     save_patch();
                 } else {
-
+                    Serial.println("Previous Bank");
                 }
             } else if (button_actionned == NEXT_BANK_BUTTON) {
                 if (mode == EDIT_MODE) {
                     cancel_edit();
                 } else {
-
+                    Serial.println("Next Bank");
                 }
             } else {
                 switch(mode) {
                     case BASIC_MODE: {
                         read_basic_mode(button_actionned);
                         break;            
-                    }
-                    case BANK_MODE: {
-                        read_bank_mode(button_actionned);
-                        break;
                     }
                     case EDIT_MODE: {
                         read_edit_mode(button_actionned);
@@ -87,30 +83,27 @@ void loop() {
                 }
             }
         } else if (action == BUTTON_STATE_LONG_PRESSED) {
-    delay(1000);
+
+        }
+    }
+    delay(300);
     return;
 }
 
-void read_basic_mode() {
-    // if (button_action.long_pressed && button_action.button == CHANGE_BANK_BUTTON) {
-    //     set_change_bank_mode_on();
-    // } else if (button_action.pressed) {
-    //     if (bitRead(current_patch_and_effects, button_action.button)) {
-    //         Serial.println(String("Basic Mode: Deactivate ") + button_action.button);
-    //         bitWrite(current_patch_and_effects, button_action.button, LOW);
-    //         bitWrite(current_patch_and_effects, button_action.button + NUMBER_OF_EFFECTS, LOW);
-    //     } else {
-    //         Serial.println(String("Basic Mode: Activate ") + button_action.button);
-    //         bitWrite(current_patch_and_effects, button_action.button, HIGH);
-    //         bitWrite(current_patch_and_effects, button_action.button + NUMBER_OF_EFFECTS, HIGH);
-    //     }
-    //     select_patch_and_effect(current_patch_and_effects);
-    //     Serial.println("wait_for_release - read_basic_mode");
-    //     wait_for_release = true;
-    // }
+void read_basic_mode(int button_actionned) {
+    if (bitRead(current_patch, button_actionned)) {
+        Serial.println(String("Basic Mode: Deactivate ") + button_actionned);
+        bitWrite(current_patch, button_actionned, LOW);
+        bitWrite(current_effects, button_actionned, LOW);
+    } else {
+        Serial.println(String("Basic Mode: Activate ") + button_actionned);
+        bitWrite(current_patch, button_actionned, HIGH);
+        bitWrite(current_effects, button_actionned, HIGH);
+    }
+    select_patch_and_effect(current_patch, current_effects);
 }
 
-void activate_selected_bank() {
+void activate_selected_bank(int button_actionned) {
     // Serial.println(String("Selected bank: ") + current_bank);
     // if (current_bank == BASIC_MODE_BANK) {
     //     Serial.println("Set Basic Mode");
@@ -139,7 +132,7 @@ void read_bank_mode() {
     // }
 }
 
-void read_edit_mode() {
+void read_edit_mode(int button_actionned) {
 
 }
 
