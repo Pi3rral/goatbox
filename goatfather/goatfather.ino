@@ -14,7 +14,6 @@ ButtonReader button_reader;
 
 // loop variables
 byte mode = BASIC_MODE;
-byte current_bank = 0;
 byte current_patch = 0;
 byte current_effects = 0;
 
@@ -63,18 +62,40 @@ void loop() {
                     save_patch();
                 } else {
                     Serial.println("Previous Bank");
+                    bank_manager.previous();
+                    if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
+                        mode = BASIC_MODE;
+                    } else {
+                        mode = BANK_MODE;
+                    }
                 }
             } else if (button_actionned == NEXT_BANK_BUTTON) {
                 if (mode == EDIT_MODE) {
                     cancel_edit();
                 } else {
                     Serial.println("Next Bank");
+                    bank_manager.next();
+                    if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
+                        mode = BASIC_MODE;
+                    } else {
+                        mode = BANK_MODE;
+                    }
                 }
             } else {
                 switch(mode) {
                     case BASIC_MODE: {
+                        Serial.println("Basic Mode");
                         read_basic_mode(button_actionned);
                         break;            
+                    }
+                    case BANK_MODE: {
+                        Serial.println("Bank Mode");
+                        if (bitRead(current_patch, button_actionned)) {
+                            unselect_all();
+                        } else {
+                            select_bank_patch(button_actionned);
+                        }
+                        break;
                     }
                     case EDIT_MODE: {
                         read_edit_mode(button_actionned);
@@ -101,35 +122,6 @@ void read_basic_mode(int button_actionned) {
         bitWrite(current_effects, button_actionned, HIGH);
     }
     select_patch_and_effect(current_patch, current_effects);
-}
-
-void activate_selected_bank(int button_actionned) {
-    // Serial.println(String("Selected bank: ") + current_bank);
-    // if (current_bank == BASIC_MODE_BANK) {
-    //     Serial.println("Set Basic Mode");
-    //     mode = BASIC_MODE;
-    // } else {
-    //     Serial.println("Set Bank Mode");
-    //     mode = BANK_MODE;
-    //     current_patch = 0;
-    // }
-    // set_change_bank_mode_off();
-}
-
-void read_bank_mode() {
-    // if (button_action.long_pressed && button_action.button == CHANGE_BANK_BUTTON) {
-    //     set_change_bank_mode_on();
-    // } else if (button_action.pressed) {
-    //     Serial.println(String("Bank Mode Reading"));
-    //     if (button_action.button != current_patch) {
-    //         Serial.println(String("Select Patch: ") + button_action.button);
-    //         select_bank_patch(button_action.button);
-    //     } else {
-    //         unselect_all();
-    //     }
-    //     Serial.println("wait_for_release - read_bank_mode - previous");
-    //     wait_for_release = true;
-    // }
 }
 
 void read_edit_mode(int button_actionned) {
@@ -171,6 +163,8 @@ void unselect_all() {
 
 void select_bank_patch(byte patch_number) {
     int effects = bank_manager.get_current_bank()->select_patch(current_patch)->get_selected_effects();
+    byte patch_activated = 0;
+    bitWrite(patch_activated, patch_number, HIGH);
     Serial.println(String("Select effects: ") + int(current_effects));
-    select_patch_and_effect(patch_number, (byte)effects);
+    select_patch_and_effect(patch_activated, (byte)effects);
 }
