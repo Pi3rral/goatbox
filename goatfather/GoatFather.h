@@ -3,6 +3,8 @@
 
 #define SERIAL_RATE 115200
 
+#define READING_RATE 100
+
 #define NUMBER_OF_BANKS 8
 #define PATCHES_PER_BANK 7
 #define NUMBER_OF_EFFECTS 8
@@ -35,5 +37,8 @@
 
 #define PREV_BANK_BUTTON 8
 #define NEXT_BANK_BUTTON 9
+
+#define BOOST_BUTTON 7
+#define BOOST_PATCH_POSITION 7 
 
 #endif // GOATROLLER_H

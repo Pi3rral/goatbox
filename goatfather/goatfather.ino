@@ -68,6 +68,7 @@ void loop() {
                     } else {
                         mode = BANK_MODE;
                     }
+                    unselect_all();
                 }
             } else if (button_actionned == NEXT_BANK_BUTTON) {
                 if (mode == EDIT_MODE) {
@@ -80,7 +81,10 @@ void loop() {
                     } else {
                         mode = BANK_MODE;
                     }
+                    unselect_all();
                 }
+            } else if (button_actionned == BOOST_BUTTON && mode != EDIT_MODE) {
+                toggle_boost();
             } else {
                 switch(mode) {
                     case BASIC_MODE: {
@@ -111,7 +115,7 @@ void loop() {
             }
         }
     }
-    delay(300);
+    delay(READING_RATE);
     return;
 }
 
@@ -135,6 +139,17 @@ void read_edit_mode(int button_actionned) {
     } else {
         Serial.println(String("Edit Mode: Activate ") + button_actionned);
         bitWrite(current_effects, button_actionned, HIGH);
+    }
+    select_patch_and_effect(current_patch, current_effects);
+}
+
+void toggle_boost() {
+    if (bitRead(current_effects, BOOST_PATCH_POSITION)) {
+        Serial.println(String("Deactivate Boost "));
+        bitWrite(current_effects, BOOST_PATCH_POSITION, LOW);
+    } else {
+        Serial.println(String("Activate Boost"));
+        bitWrite(current_effects, BOOST_PATCH_POSITION, HIGH);
     }
     select_patch_and_effect(current_patch, current_effects);
 }
@@ -177,9 +192,10 @@ void unselect_all() {
 }
 
 void select_bank_patch(byte patch_number) {
-    int effects = bank_manager.get_current_bank()->select_patch(current_patch)->get_selected_effects();
+    unselect_all();
+    byte effects = bank_manager.get_current_bank()->select_patch(patch_number)->get_selected_effects();
     byte patch_activated = 0;
     bitWrite(patch_activated, patch_number, HIGH);
-    Serial.println(String("Select effects: ") + int(current_effects));
-    select_patch_and_effect(patch_activated, (byte)effects);
+    Serial.println(String("Select effects: ") + effects);
+    select_patch_and_effect(patch_activated, effects);
 }
