@@ -1,16 +1,17 @@
 #include <Arduino.h>
+#include "Wire.h"
+#include "LiquidCrystal_I2C.h" 
 #include "GoatFather.h"
 #include "BankManager.h"
 #include "ButtonReader.h"
-
-#define BASIC_MODE 1
-#define BANK_MODE 2
-#define EDIT_MODE 3
 
 // bank manager
 BankManager bank_manager(0, NUMBER_OF_BANKS, PATCHES_PER_BANK);
 // button reader
 ButtonReader button_reader;
+
+// LCD
+LiquidCrystal_I2C lcd(0x3F, 20, 4); 
 
 // loop variables
 byte mode = BASIC_MODE;
@@ -19,6 +20,13 @@ byte current_effects = 0;
 
 
 void setup() {
+    lcd.init();
+    lcd.backlight();
+    lcd.setCursor(0,0);
+    lcd.print("I AM THE GOATFATHER");
+    lcd.setCursor(0,1);
+    lcd.print("Starting");
+
     //set pins to output for TPIC6B595N
     pinMode(CLOCK_PIN, OUTPUT); 
     pinMode(LATCH_PIN, OUTPUT);
@@ -44,6 +52,11 @@ void setup() {
 
     Serial.println("GoatFather initialized");
 
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print("Effect Mode");
+
+
     unselect_all();
 }
 
@@ -65,8 +78,14 @@ void loop() {
                     Serial.println(String("Previous Bank: ") + bank_manager.get_current_bank_number());
                     if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
                         mode = BASIC_MODE;
+                        lcd.clear();
+                        lcd.setCursor(0,1);
+                        lcd.print("Effect Mode");
                     } else {
                         mode = BANK_MODE;
+                        lcd.clear();
+                        lcd.setCursor(0,1);
+                        lcd.print(String("Bank ") + bank_manager.get_current_bank_number());
                     }
                     unselect_all();
                 }
@@ -78,8 +97,14 @@ void loop() {
                     Serial.println(String("Next Bank: ") + bank_manager.get_current_bank_number());
                     if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
                         mode = BASIC_MODE;
+                        lcd.clear();
+                        lcd.setCursor(0,1);
+                        lcd.print("Effect Mode");
                     } else {
                         mode = BANK_MODE;
+                        lcd.clear();
+                        lcd.setCursor(0,1);
+                        lcd.print(String("Bank ") + bank_manager.get_current_bank_number());
                     }
                     unselect_all();
                 }
@@ -111,6 +136,8 @@ void loop() {
         } else if (action == BUTTON_STATE_LONG_PRESSED && mode == BANK_MODE) {
             if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
                 Serial.println("Now in EDIT MODE");
+                lcd.setCursor(0,2);
+                lcd.print(String("Edit Patch ") + bank_manager.get_current_bank()->get_selected_patch_number() + 1);
                 mode = EDIT_MODE;
             }
         }
@@ -155,8 +182,11 @@ void toggle_boost() {
 }
 
 void save_patch() {
+    lcd.setCursor(0,2);
+    lcd.print("Saving Preset...");
     Serial.println("Save Effects");
     bank_manager.get_current_bank()->get_selected_patch()->save(current_effects);
+    delay(500);
     cancel_edit();
 }
 
@@ -164,6 +194,9 @@ void cancel_edit() {
     Serial.println("Cancel Edit");
     mode = BANK_MODE;
     select_bank_patch(bank_manager.get_current_bank()->get_selected_patch_number());
+    lcd.clear();
+    lcd.setCursor(0,1);
+    lcd.print(String("Bank ") + bank_manager.get_current_bank_number());
 }
 
 void select_patch_and_effect(byte patch, byte effects) {
