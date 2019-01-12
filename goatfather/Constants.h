@@ -1,5 +1,6 @@
-#ifndef GOATROLLER_H
-#define GOATROLLER_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+
 
 #define SERIAL_RATE 115200
 
@@ -10,7 +11,7 @@
 #define NUMBER_OF_EFFECTS 8
 #define NUMBER_OF_BUTTON 10
 #define NUMBER_OF_SHIFT_REGISTER 2
-#define LONG_PRESS_TIME 2000
+#define LONG_PRESS_TIME 3000
 #define LOAD_PREDEFINED false
 
 // TPIC6B595N Pins
@@ -24,6 +25,11 @@
 #define IN_CLOCK_PIN 5 // Connected clock pin (CP) of 74HC165
 #define IN_CLOCK_ENABLE_PIN 6 // Connected to clock enable pin (CE) of 74HC165
 #define IN_DATA_PIN 7 // Connected to data pin (Q7) of 74HC165
+
+// LCD Information
+#define LCD_ADDRESS 0x3F
+#define LCD_COLUMNS 20
+#define LCD_ROWS 4
 
 // Button States
 #define BUTTON_STATE_REST 0
@@ -45,4 +51,4 @@
 #define BOOST_BUTTON 7
 #define BOOST_PATCH_POSITION 7 
 
-#endif // GOATROLLER_H
+#endif // CONSTANTS_H

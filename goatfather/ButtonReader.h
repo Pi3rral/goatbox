@@ -1,7 +1,8 @@
 #ifndef BUTTONREADER_H
 #define BUTTONREADER_H
 
-#include "GoatFather.h"
+#include "Constants.h"
+
 
 class ButtonReader {
     
