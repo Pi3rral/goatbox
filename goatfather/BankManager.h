@@ -2,7 +2,11 @@
 #define GOATBOX_BANKMANAGER_H
 
 #include "Bank.h"
-#include "Constants.h"
+
+#define DEFAULT_START_EEPROM_ADDRESS 0
+#define DEFAULT_NUMBER_OF_BANKS 8
+#define DEFAULT_PATCHES_PER_BANK 8
+#define DEFAULT_LOAD_PREDEFINED false
 
 
 class BankManager {
@@ -12,15 +16,15 @@ private:
     int patches_per_bank;
     int current_bank;
     int start_eeprom_address;
-    Bank ** banks;
+    Bank** banks;
 
 public:
-    BankManager(int _start_eeprom_address = 0,
-                int _total_banks = NUMBER_OF_BANKS, 
-                int _patches_per_bank = PATCHES_PER_BANK);
+    BankManager(int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
+                int _total_banks = DEFAULT_NUMBER_OF_BANKS, 
+                int _patches_per_bank = DEFAULT_PATCHES_PER_BANK);
     ~BankManager();
 
-    void init(bool _load_predefined = LOAD_PREDEFINED);
+    void init(bool _load_predefined = DEFAULT_LOAD_PREDEFINED);
 
     Bank * next();
     Bank * previous();

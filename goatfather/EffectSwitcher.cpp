@@ -1,54 +1,77 @@
 #include "EffectSwitcher.h"
-#include "Constants.h"
+#include "ButtonReader.h"
+
+#define SERIAL_RATE 115200
+#define READING_RATE 100
+#define BASIC_MODE_BANK 0
 
 
-EffectSwitcher::EffectSwitcher() {
-    bank_manager = new BankManager(0, NUMBER_OF_BANKS, PATCHES_PER_BANK);
-    button_reader = new ButtonReader();
-    lcd = new LiquidCrystal_I2C(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
-    mode = BASIC_MODE;
+EffectSwitcher::EffectSwitcher(
+    ButtonReader * _button_reader, 
+    BankManager* _bank_manager, 
+    LiquidCrystal_I2C* _lcd,
+    byte _pin_register_clock,
+    byte _pin_register_latch,
+    byte _pin_register_output_enable,
+    byte _pin_register_data) {
+    bank_manager = _bank_manager;
+    button_reader = _button_reader;
+    lcd = _lcd;
+    pin_register_clock = _pin_register_clock;
+    pin_register_latch = _pin_register_latch;
+    pin_register_output_enable = _pin_register_output_enable;
+    pin_register_data = _pin_register_data;
+    mode = effects_mode::basic;
     current_patch = 0;
     current_effects = 0;
 }
 
-void EffectSwitcher::init() {
-    lcd->init();
-    lcd->backlight();
-    lcd->setCursor(0,0);
-    lcd->print("I AM THE GOATFATHER");
-    lcd->setCursor(0,1);
-    lcd->print("Starting");
+void EffectSwitcher::init_lcd() {
+    if (lcd) {
+        lcd->init();
+        lcd->backlight();
+        lcd->clear();
+        lcd->setCursor(0,0);
+    }
+}
 
+void EffectSwitcher::init_register() {
     //set pins to output for TPIC6B595N
-    pinMode(CLOCK_PIN, OUTPUT); 
-    pinMode(LATCH_PIN, OUTPUT);
-    pinMode(OUTPUT_ENABLE_PIN, OUTPUT);
-    pinMode(DATA_PIN, OUTPUT);
-
-    //set pins to output for 74HC165 
-    pinMode(IN_LOAD_PIN, OUTPUT);
-    pinMode(IN_CLOCK_PIN, OUTPUT);
-    pinMode(IN_CLOCK_ENABLE_PIN, OUTPUT); 
-    pinMode(IN_DATA_PIN, INPUT);
-
+    pinMode(pin_register_clock, OUTPUT); 
+    pinMode(pin_register_latch, OUTPUT);
+    pinMode(pin_register_output_enable, OUTPUT);
+    pinMode(pin_register_data, OUTPUT);
     // Enable output
-    digitalWrite(OUTPUT_ENABLE_PIN, LOW);
-    // Disable inputs
-    digitalWrite(IN_LOAD_PIN, HIGH);
-    digitalWrite(IN_CLOCK_ENABLE_PIN, HIGH);
+    digitalWrite(pin_register_output_enable, LOW);
+}
 
+void EffectSwitcher::init() {
     Serial.begin(SERIAL_RATE);
-    
-    // initialize bank manager
-    bank_manager->init(LOAD_PREDEFINED);
-
-    Serial.println("GoatFather initialized");
-
-    lcd->clear();
-    lcd->setCursor(0,1);
-    lcd->print("Effect Mode");
-
+    init_lcd();
+    display("Starting...", 0, 0, true);
+    init_register();
+    button_reader->init();
+    bank_manager->init();
     unselect_all();
+    display("Effect Mode", 0, 0, true);
+    Serial.println("GoatFather initialized");
+}
+
+void EffectSwitcher::clear_display() {
+    if (lcd) {
+        lcd->clear();
+        lcd->setCursor(0, 0);
+    }
+}
+
+void EffectSwitcher::display(String message, int row, int col, bool clear) {
+    if (lcd) {
+        if (clear) {
+            clear_display();
+        }
+        lcd->setCursor(col, row);
+        lcd->print(message);
+    }
 }
 
 void EffectSwitcher::read_and_apply() {
@@ -60,20 +83,20 @@ void EffectSwitcher::read_and_apply() {
         // Serial.print(button_actionned);
         // Serial.print(" With State ");
         // Serial.println(button_reader->get_action_for_button(button_actionned));
-        if (action == BUTTON_STATE_PRESSED) {
+        if (action == button_state::pressed) {
             if (button_actionned == PREV_BANK_BUTTON) {
-                if (mode == EDIT_MODE) {
+                if (mode == effects_mode::edit) {
                     save_patch();
                 } else {
                     bank_manager->previous();
                     Serial.println(String("Previous Bank: ") + bank_manager->get_current_bank_number());
                     if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
-                        mode = BASIC_MODE;
+                        mode = effects_mode::basic;
                         lcd->clear();
                         lcd->setCursor(0,1);
                         lcd->print("Effect Mode");
                     } else {
-                        mode = BANK_MODE;
+                        mode = effects_mode::bank;
                         lcd->clear();
                         lcd->setCursor(0,1);
                         lcd->print(String("Bank ") + bank_manager->get_current_bank_number());
@@ -81,35 +104,35 @@ void EffectSwitcher::read_and_apply() {
                     unselect_all();
                 }
             } else if (button_actionned == NEXT_BANK_BUTTON) {
-                if (mode == EDIT_MODE) {
+                if (mode == effects_mode::edit) {
                     cancel_edit();
                 } else {
                     bank_manager->next();
                     Serial.println(String("Next Bank: ") + bank_manager->get_current_bank_number());
                     if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
-                        mode = BASIC_MODE;
+                        mode = effects_mode::basic;
                         lcd->clear();
                         lcd->setCursor(0,1);
                         lcd->print("Effect Mode");
                     } else {
-                        mode = BANK_MODE;
+                        mode = effects_mode::bank;
                         lcd->clear();
                         lcd->setCursor(0,1);
                         lcd->print(String("Bank ") + bank_manager->get_current_bank_number());
                     }
                     unselect_all();
                 }
-            } else if (button_actionned == BOOST_BUTTON && mode != EDIT_MODE) {
+            } else if (button_actionned == BOOST_BUTTON && mode != effects_mode::edit) {
                 toggle_boost();
             } else {
                 switch(mode) {
-                    case BASIC_MODE: {
-                        Serial.println("Basic Mode");
+                    case effects_mode::basic: {
+                        Serial.println("Read Basic Mode");
                         read_basic_mode(button_actionned);
                         break;            
                     }
-                    case BANK_MODE: {
-                        Serial.println("Bank Mode");
+                    case effects_mode::bank: {
+                        Serial.println("Read Bank Mode");
                         if (bitRead(current_patch, button_actionned)) {
                             unselect_all();
                         } else {
@@ -117,19 +140,19 @@ void EffectSwitcher::read_and_apply() {
                         }
                         break;
                     }
-                    case EDIT_MODE: {
-                        Serial.println("Edit Mode");
+                    case effects_mode::edit: {
+                        Serial.println("Read Edit Mode");
                         read_edit_mode(button_actionned);
                         break;
                     }
                 }
             }
-        } else if (action == BUTTON_STATE_LONG_PRESSED && mode == BANK_MODE) {
+        } else if (action == button_state::long_pressed && mode == effects_mode::bank) {
             if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
                 Serial.println("Now in EDIT MODE");
                 lcd->setCursor(0,2);
                 lcd->print(String("Edit Patch ") + bank_manager->get_current_bank()->get_selected_patch_number() + 1);
-                mode = EDIT_MODE;
+                mode = effects_mode::edit;
             }
         }
     }
@@ -182,31 +205,11 @@ void EffectSwitcher::save_patch() {
 
 void EffectSwitcher::cancel_edit() {
     Serial.println("Cancel Edit");
-    mode = BANK_MODE;
+    mode = effects_mode::bank;
     select_bank_patch(bank_manager->get_current_bank()->get_selected_patch_number());
     lcd->clear();
     lcd->setCursor(0,1);
     lcd->print(String("Bank ") + bank_manager->get_current_bank_number());
-}
-
-void EffectSwitcher::select_patch_and_effect(byte patch, byte effects) {
-    // turn off the output so the pins don't light up
-    // while you're shifting bits:
-    digitalWrite(LATCH_PIN, LOW);
-    digitalWrite(OUTPUT_ENABLE_PIN, HIGH);
-    
-    // shift the bits for patch
-    shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, patch);
-    
-    // shift the bits for effects
-    shiftOut(DATA_PIN, CLOCK_PIN, MSBFIRST, effects);
-
-    // turn on the output so the LEDs can light up:
-    digitalWrite(LATCH_PIN, HIGH);
-    digitalWrite(OUTPUT_ENABLE_PIN, LOW);
-    current_patch = patch;
-    current_effects = effects;
-    delay(10);
 }
 
 void EffectSwitcher::unselect_all() {
@@ -221,4 +224,24 @@ void EffectSwitcher::select_bank_patch(byte patch_number) {
     bitWrite(patch_activated, patch_number, HIGH);
     Serial.println(String("Select effects: ") + effects);
     select_patch_and_effect(patch_activated, effects);
+}
+
+void EffectSwitcher::select_patch_and_effect(byte patch, byte effects) {
+    // turn off the output so the pins don't light up
+    // while you're shifting bits:
+    digitalWrite(pin_register_latch, LOW);
+    digitalWrite(pin_register_output_enable, HIGH);
+    
+    // shift the bits for patch
+    shiftOut(pin_register_data, pin_register_clock, MSBFIRST, patch);
+    
+    // shift the bits for effects
+    shiftOut(pin_register_data, pin_register_clock, MSBFIRST, effects);
+
+    // turn on the output so the LEDs can light up:
+    digitalWrite(pin_register_latch, HIGH);
+    digitalWrite(pin_register_output_enable, LOW);
+    current_patch = patch;
+    current_effects = effects;
+    delay(10);
 }

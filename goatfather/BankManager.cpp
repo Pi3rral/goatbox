@@ -1,6 +1,5 @@
 #include "BankManager.h"
 #include "Bank.h"
-#include "Constants.h"
 
 
 BankManager::BankManager(int _start_eeprom_address, int _total_banks, int _patches_per_bank) {

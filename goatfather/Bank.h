@@ -1,7 +1,6 @@
 #ifndef GOATBOX_BANK_H
 #define GOATBOX_BANK_H
 
-
 #include "Patch.h"
 
 
