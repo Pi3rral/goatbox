@@ -6,6 +6,18 @@
 #include "ButtonReader.h"
 
 
+#define SERIAL_RATE 115200
+#define READING_RATE 100
+#define BASIC_MODE_BANK 0
+
+#define PREV_BANK_BUTTON 8
+#define NEXT_BANK_BUTTON 9
+
+#define BOOST_BUTTON 7
+#define BOOST_PATCH_POSITION 7 
+
+
+
 enum effects_mode {
     basic = 1,
     bank = 2,
@@ -29,12 +41,17 @@ protected:
     byte current_patch = 0;
     byte current_effects = 0;
 
+    byte register_1 = 0;
+    byte register_2 = 0;
+
     void unselect_all();
     virtual void read_basic_mode(int button_actionned);
     virtual void read_edit_mode(int button_actionned);
+    virtual void set_bank_mode();
     void toggle_boost();
     void save_patch();
     void cancel_edit();
+    virtual void compute_registers(byte patch, byte effects);
     virtual void select_patch_and_effect(byte patch, byte effects);
     void select_bank_patch(byte patch_number);
     void init_lcd();
