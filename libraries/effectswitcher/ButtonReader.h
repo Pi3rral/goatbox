@@ -11,7 +11,8 @@ enum button_state {
     still_pressed = 2,
     long_pressed = 3,
     still_long_pressed = 4,
-    released = 5
+    released = 5,
+    double_pressed = 6
 };
 
 class ButtonReader {

@@ -33,6 +33,9 @@ public:
     void set_current_bank(int _bank_number);
 
     int get_current_bank_number() const;
+
+    int get_total_bank() const { return total_banks; };
+    int get_patches_per_bank() const { return patches_per_bank; };
 };
 
 #endif //GOATBOX_BANKMANAGER_H
