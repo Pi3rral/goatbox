@@ -1,7 +1,8 @@
 #ifndef BUTTONREADER_H
 #define BUTTONREADER_H
 
-#define DEFAULT_LONG_PRESS_TIME 2500
+#define DEFAULT_LONG_PRESS_TIME 3000
+#define DOUBLE_PRESSED_MAX_INTERVAL 500
 
 
 // Button States
@@ -22,7 +23,7 @@ protected:
     byte number_of_buttons;
 
     byte* buttons_state;
-    byte* buttons_action_time;
+    unsigned long* buttons_action_time;
 
     void update_button_state(byte button_number, byte bit_state);
 

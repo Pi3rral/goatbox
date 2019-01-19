@@ -11,14 +11,16 @@ RollerEffectSwitcher::RollerEffectSwitcher(
     byte _pin_register_data
 ): EffectSwitcher(_button_reader, _bank_manager, nullptr,
     _pin_register_clock, _pin_register_latch, _pin_register_output_enable, _pin_register_data) {
-
+    edit_mode_started = 0;
 }
 
 void RollerEffectSwitcher::read_and_apply() {
+    if (mode == effects_mode::edit && millis() - edit_mode_started > EDIT_MODE_INTERVAL) {
+        save_patch();
+    }
     button_reader->read();
     int button_actionned = button_reader->get_actionned_button();
     if (button_actionned >= 0) {
-        Serial.println(String("Button Actionned: ") + button_actionned);
         int action = button_reader->get_action_for_button(button_actionned);
         if (action == button_state::pressed) {
             switch(mode) {
@@ -46,6 +48,7 @@ void RollerEffectSwitcher::read_and_apply() {
             Serial.println("Now in EDIT MODE");
             display(String("Edit Patch ") + bank_manager->get_current_bank()->get_selected_patch_number() + 1, 2);
             mode = effects_mode::edit;
+            edit_mode_started = millis();
         } else if (action == button_state::double_pressed && mode != effects_mode::edit) {
             switch(button_actionned) {
                 case ROLLER_PREV_BANK_BUTTON: {
@@ -76,9 +79,9 @@ void RollerEffectSwitcher::read_and_apply() {
 }
 
 void RollerEffectSwitcher::compute_registers(byte patch, byte effects) {
-    Serial.println("compute_registers");
-    Serial.println(String("patch: ") + patch + String(" and effects: ") + effects);
-    Serial.println(String("patches per bank: ") + bank_manager->get_patches_per_bank());
+    // Serial.println("compute_registers");
+    // Serial.println(String("patch: ") + patch + String(" and effects: ") + effects);
+    // Serial.println(String("patches per bank: ") + bank_manager->get_patches_per_bank());
 
     // set bank leds display for TPIC6B595N
     int current_bank = bank_manager->get_current_bank_number();
@@ -97,5 +100,5 @@ void RollerEffectSwitcher::compute_registers(byte patch, byte effects) {
             bitWrite(register_1, i, HIGH);
         }
     }
-    Serial.println(String("register_1: ") + register_1);
+    // Serial.println(String("register_1: ") + register_1);
 }

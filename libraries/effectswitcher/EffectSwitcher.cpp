@@ -150,12 +150,14 @@ void EffectSwitcher::read_basic_mode(int button_actionned) {
 }
 
 void EffectSwitcher::read_edit_mode(int button_actionned) {
-    bitWrite(current_effects, button_actionned, bitRead(current_patch, button_actionned) ? LOW : HIGH);
+    byte effect_state = bitRead(current_effects, button_actionned) ? LOW : HIGH;
+    bitWrite(current_effects, button_actionned, effect_state);
     select_patch_and_effect(current_patch, current_effects);
 }
 
 void EffectSwitcher::toggle_boost() {
-    bitWrite(current_effects, BOOST_PATCH_POSITION, bitRead(current_effects, BOOST_PATCH_POSITION) ? LOW : HIGH);
+    byte boost_state = bitRead(current_effects, BOOST_PATCH_POSITION) ? LOW : HIGH;
+    bitWrite(current_effects, BOOST_PATCH_POSITION, boost_state);
     select_patch_and_effect(current_patch, current_effects);
 }
 
