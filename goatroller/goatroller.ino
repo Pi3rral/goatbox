@@ -1,4 +1,3 @@
-// #include <Arduino.h>
 #include "RollerEffectSwitcher.h"
 #include "ButtonReader.h"
 #include "BankManager.h"
@@ -7,10 +6,11 @@
 // ButtonReader parameters
 #define NUMBER_OF_BUTTON 4
 #define NUMBER_OF_SHIFT_REGISTER 2
-#define IN_LOAD_PIN 4 // Connected to load pin (PL) of 74HC165
-#define IN_CLOCK_PIN 5 // Connected clock pin (CP) of 74HC165
-#define IN_CLOCK_ENABLE_PIN 6 // Connected to clock enable pin (CE) of 74HC165
-#define IN_DATA_PIN 7 // Connected to data pin (Q7) of 74HC165
+
+#define BUTTON0_PIN 7
+#define BUTTON1_PIN 8
+#define BUTTON2_PIN 9
+#define BUTTON3_PIN 10
 
 // BankManager parameters
 #define EEPROM_START_ADDRESS 0
@@ -23,14 +23,26 @@
 #define OUTPUT_ENABLE_PIN 10 //Connected to output enable (G_) of TPIC6B595N
 #define DATA_PIN 11 //Connected to Data in (SER_IN) of TPIC6B595N
 
+#define EDIT_LED_PIN 6
 
-ButtonReader* button_reader = new ButtonReaderRegister(
+
+// #define IN_LOAD_PIN 4 // Connected to load pin (PL) of 74HC165
+// #define IN_CLOCK_PIN 5 // Connected clock pin (CP) of 74HC165
+// #define IN_CLOCK_ENABLE_PIN 6 // Connected to clock enable pin (CE) of 74HC165
+// #define IN_DATA_PIN 7 // Connected to data pin (Q7) of 74HC165
+// ButtonReader* button_reader = new ButtonReaderRegister(
+//     NUMBER_OF_BUTTON,
+//     IN_LOAD_PIN,
+//     IN_CLOCK_PIN,
+//     IN_CLOCK_ENABLE_PIN,
+//     IN_DATA_PIN,
+//     NUMBER_OF_SHIFT_REGISTER
+// );
+
+byte * buttons = new byte[BUTTON0_PIN, BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN];
+ButtonReader* button_reader = new ButtonReaderPins(
     NUMBER_OF_BUTTON,
-    IN_LOAD_PIN,
-    IN_CLOCK_PIN,
-    IN_CLOCK_ENABLE_PIN,
-    IN_DATA_PIN,
-    NUMBER_OF_SHIFT_REGISTER
+    buttons
 );
 BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_BANKS, PATCHES_PER_BANK);
 
@@ -40,7 +52,8 @@ RollerEffectSwitcher effect_switcher(
     CLOCK_PIN,
     LATCH_PIN,
     OUTPUT_ENABLE_PIN,
-    DATA_PIN
+    DATA_PIN,
+    EDIT_LED_PIN
 );
 
 void setup() {
@@ -50,27 +63,6 @@ void setup() {
 void loop() {
     effect_switcher.read_and_apply();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // #include <Arduino.h>

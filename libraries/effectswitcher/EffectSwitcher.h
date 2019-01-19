@@ -68,8 +68,8 @@ public:
         byte _pin_register_latch,
         byte _pin_register_output_enable,
         byte _pin_register_data);
-    void init();
-    void read_and_apply();
+    virtual void init();
+    virtual void read_and_apply();
 
 };
 

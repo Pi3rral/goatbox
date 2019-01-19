@@ -15,6 +15,7 @@
 class RollerEffectSwitcher : public EffectSwitcher {
 
 protected:
+    byte edit_led_pin;
     virtual void compute_registers(byte patch, byte effects);
     unsigned long edit_mode_started = 0;
 
@@ -25,8 +26,10 @@ public:
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
-        byte _pin_register_data);
-    void read_and_apply();
+        byte _pin_register_data,
+        byte _edit_led_pin);
+    virtual void init();
+    virtual void read_and_apply();
 };
 
 
