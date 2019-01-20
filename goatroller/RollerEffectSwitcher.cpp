@@ -24,11 +24,12 @@ void RollerEffectSwitcher::init() {
 }
 
 void RollerEffectSwitcher::read_and_apply() {
+    bool action_done = false;
+    button_reader->read();
     if (mode == effects_mode::edit && millis() - edit_mode_started > EDIT_MODE_INTERVAL) {
         save_patch();
         digitalWrite(edit_led_pin, LOW);
     }
-    button_reader->read();
     int button_actionned = button_reader->get_actionned_button();
     if (button_actionned >= 0) {
         int action = button_reader->get_action_for_button(button_actionned);
@@ -57,9 +58,11 @@ void RollerEffectSwitcher::read_and_apply() {
         } else if (action == button_state::long_pressed && mode == effects_mode::bank) {
             Serial.println("Now in EDIT MODE");
             display(String("Edit Patch ") + bank_manager->get_current_bank()->get_selected_patch_number() + 1, 2);
+            select_bank_patch(button_actionned);
             mode = effects_mode::edit;
             digitalWrite(edit_led_pin, HIGH);
             edit_mode_started = millis();
+            action_done = true;
         } else if (action == button_state::double_pressed && mode != effects_mode::edit) {
             switch(button_actionned) {
                 case ROLLER_PREV_BANK_BUTTON: {
@@ -84,7 +87,11 @@ void RollerEffectSwitcher::read_and_apply() {
                     break;
                 }
             }
+            action_done = true;
         }
+    }
+    if (action_done) {
+        delay(READING_WAIT_AFTER_ACTION);
     }
     delay(READING_RATE);
 }

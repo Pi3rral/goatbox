@@ -18,10 +18,16 @@
 #define PATCHES_PER_BANK 4
 
 // EffectSwitcher parameters
-#define CLOCK_PIN 9 //Connected to clock pin (SRCK) of TPIC6B595N
-#define LATCH_PIN 8 //Connected to latch pin (RCK) of TPIC6B595N
-#define OUTPUT_ENABLE_PIN 10 //Connected to output enable (G_) of TPIC6B595N
-#define DATA_PIN 11 //Connected to Data in (SER_IN) of TPIC6B595N
+// #define CLOCK_PIN 9 //Connected to clock pin (SRCK) of TPIC6B595N
+// #define LATCH_PIN 8 //Connected to latch pin (RCK) of TPIC6B595N
+// #define OUTPUT_ENABLE_PIN 10 //Connected to output enable (G_) of TPIC6B595N
+// #define DATA_PIN 11 //Connected to Data in (SER_IN) of TPIC6B595N
+
+#define CLOCK_PIN 2 //Connected to clock pin (SRCK) of TPIC6B595N
+#define LATCH_PIN 3 //Connected to latch pin (RCK) of TPIC6B595N
+#define OUTPUT_ENABLE_PIN 4 //Connected to output enable (G_) of TPIC6B595N
+#define DATA_PIN 5 //Connected to Data in (SER_IN) of TPIC6B595N
+
 
 #define EDIT_LED_PIN 6
 
@@ -39,7 +45,8 @@
 //     NUMBER_OF_SHIFT_REGISTER
 // );
 
-byte * buttons = new byte[BUTTON0_PIN, BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN];
+// byte* buttons = [BUTTON0_PIN, BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN];
+int buttons[NUMBER_OF_BUTTON] = {7, 8, 9, 10};
 ButtonReader* button_reader = new ButtonReaderPins(
     NUMBER_OF_BUTTON,
     buttons

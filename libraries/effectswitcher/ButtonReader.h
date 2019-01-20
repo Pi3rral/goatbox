@@ -61,11 +61,11 @@ public:
 class ButtonReaderPins: public ButtonReader {
 
 protected:
-    byte* buttons_pin;
+    int* buttons_pin;
 
 public:
     ButtonReaderPins(byte _number_of_buttons, 
-                     byte* _buttons_pin,
+                     int* _buttons_pin,
                      int _long_press_time = DEFAULT_LONG_PRESS_TIME);
     virtual void init();
     virtual void read();

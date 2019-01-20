@@ -126,7 +126,7 @@ void ButtonReaderRegister::read() {
 
 ButtonReaderPins::ButtonReaderPins(
     byte _number_of_buttons, 
-    byte* _buttons_pin,
+    int* _buttons_pin,
     int _long_press_time):
     ButtonReader(_number_of_buttons, _long_press_time) {
     buttons_pin = _buttons_pin;
@@ -140,6 +140,7 @@ void ButtonReaderPins::init() {
 
 void ButtonReaderPins::read() {
     for (int i = 0; i < number_of_buttons; ++i) {
-        update_button_state(i, buttons_pin[i]);
+        byte state = digitalRead(buttons_pin[i]);
+        update_button_state(i, state);
     }
 }

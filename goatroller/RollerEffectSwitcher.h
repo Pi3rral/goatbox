@@ -9,7 +9,7 @@
 #define ROLLER_NEXT_BANK_BUTTON 3
 #define ROLLER_NO_BANK_BUTTON 0
 
-#define EDIT_MODE_INTERVAL 6000
+#define EDIT_MODE_INTERVAL 8000
 
 
 class RollerEffectSwitcher : public EffectSwitcher {
