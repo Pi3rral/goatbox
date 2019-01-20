@@ -1,6 +1,5 @@
 #include "Bank.h"
 #include "Patch.h"
-#include "GoatRoller.h"
 
 
 Bank::Bank(int _bank_number, int _eeprom_address, int _total_patches, bool _load_predefined) {
@@ -25,7 +24,7 @@ void Bank::load(bool _load_predefined) {
     for (int i = 0; i < total_patches; ++i) {
         selected_effects = 0;
         if (_load_predefined) {
-            selected_effects = predefined_patches[bank_number][i];
+            // selected_effects = predefined_patches[bank_number][i];
         }
         patches[i] = new Patch(i, eeprom_address + i, selected_effects, !_load_predefined);
     }

@@ -1,7 +1,6 @@
 #ifndef GOATBOX_BANK_H
 #define GOATBOX_BANK_H
 
-
 #include "Patch.h"
 
 
@@ -22,6 +21,7 @@ public:
 
     Patch * select_patch(int _patch_number);
     Patch * get_selected_patch() const;
+    int get_selected_patch_number() const { return selected_patch; };
 };
 
 #endif //GOATBOX_BANK_H
