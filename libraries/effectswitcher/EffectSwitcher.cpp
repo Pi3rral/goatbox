@@ -5,11 +5,12 @@
 EffectSwitcher::EffectSwitcher(
     ButtonReader * _button_reader, 
     BankManager* _bank_manager, 
-    LiquidCrystal_I2C* _lcd,
+    Adafruit_SSD1306* _lcd,
     byte _pin_register_clock,
     byte _pin_register_latch,
     byte _pin_register_output_enable,
-    byte _pin_register_data) {
+    byte _pin_register_data,
+    byte _lcd_i2c_address) {
     bank_manager = _bank_manager;
     button_reader = _button_reader;
     lcd = _lcd;
@@ -17,6 +18,7 @@ EffectSwitcher::EffectSwitcher(
     pin_register_latch = _pin_register_latch;
     pin_register_output_enable = _pin_register_output_enable;
     pin_register_data = _pin_register_data;
+    lcd_i2c_address = _lcd_i2c_address;
     mode = effects_mode::basic;
     register_1 = 0;
     register_2 = 0;
@@ -26,9 +28,10 @@ EffectSwitcher::EffectSwitcher(
 
 void EffectSwitcher::init_lcd() {
     if (lcd) {
-        lcd->init();
-        lcd->backlight();
-        lcd->clear();
+        lcd->begin(SSD1306_SWITCHCAPVCC, lcd_i2c_address);
+        lcd->clearDisplay();
+        lcd->setTextColor(WHITE);
+        lcd->setTextSize(1);
         lcd->setCursor(0,0);
     }
 }
@@ -57,7 +60,7 @@ void EffectSwitcher::init() {
 
 void EffectSwitcher::clear_display() {
     if (lcd) {
-        lcd->clear();
+        lcd->clearDisplay();
         lcd->setCursor(0, 0);
     }
 }
@@ -67,6 +70,8 @@ void EffectSwitcher::display(String message, int row, int col, bool clear) {
         if (clear) {
             clear_display();
         }
+        lcd->setTextColor(WHITE);
+        lcd->setTextSize(1);
         lcd->setCursor(col, row);
         lcd->print(message);
     }

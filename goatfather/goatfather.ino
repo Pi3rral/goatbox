@@ -1,6 +1,7 @@
 // #include <Arduino.h>
 #include "Wire.h"
-#include "LiquidCrystal_I2C.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include "EffectSwitcher.h"
 #include "ButtonReader.h"
 #include "BankManager.h"
@@ -19,10 +20,11 @@
 #define NUMBER_OF_BANKS 8
 #define PATCHES_PER_BANK 7
 
-// LCD parameters
-#define LCD_ADDRESS 0x3F
-#define LCD_COLUMNS 20
-#define LCD_ROWS 4
+// OLED parameters
+#define OLED_ADDRESS 0x3F
+#define OLED_WIDTH 128
+#define OLED_HEIGHT 64
+#define OLED_RESET 4
 
 // EffectSwitcher parameters
 #define CLOCK_PIN 9 //Connected to clock pin (SRCK) of TPIC6B595N
@@ -40,7 +42,7 @@ ButtonReader* button_reader = new ButtonReaderRegister(
     NUMBER_OF_SHIFT_REGISTER
 );
 BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_BANKS, PATCHES_PER_BANK);
-LiquidCrystal_I2C* lcd = new LiquidCrystal_I2C(LCD_ADDRESS, LCD_COLUMNS, LCD_ROWS);
+Adafruit_SSD1306* lcd = new Adafruit_SSD1306(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 
 EffectSwitcher effect_switcher(
     button_reader, 
@@ -49,7 +51,8 @@ EffectSwitcher effect_switcher(
     CLOCK_PIN,
     LATCH_PIN,
     OUTPUT_ENABLE_PIN,
-    DATA_PIN
+    DATA_PIN,
+    OLED_ADDRESS
 );
 
 void setup() {

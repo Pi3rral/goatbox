@@ -1,7 +1,8 @@
 #ifndef EFFECTSWITCHER_H
 #define EFFECTSWITCHER_H
 
-#include "LiquidCrystal_I2C.h"
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include "BankManager.h"
 #include "ButtonReader.h"
 
@@ -31,7 +32,9 @@ class EffectSwitcher {
 protected:
     BankManager* bank_manager = 0;
     ButtonReader* button_reader = 0;
-    LiquidCrystal_I2C* lcd = 0;
+    Adafruit_SSD1306* lcd = 0;
+
+    byte lcd_i2c_address = 0;
 
     byte pin_register_clock;
     byte pin_register_latch;
@@ -64,11 +67,12 @@ public:
     EffectSwitcher(
         ButtonReader* _button_reader, 
         BankManager* _bank_manager, 
-        LiquidCrystal_I2C* _lcd,
+        Adafruit_SSD1306* _lcd,
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
-        byte _pin_register_data);
+        byte _pin_register_data,
+        byte _lcd_i2c_address);
     virtual void init();
     virtual void read_and_apply();
 
