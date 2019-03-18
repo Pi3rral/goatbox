@@ -1,24 +1,21 @@
 #include "EffectSwitcher.h"
 #include "ButtonReader.h"
 
-
 EffectSwitcher::EffectSwitcher(
     ButtonReader * _button_reader, 
     BankManager* _bank_manager, 
-    Adafruit_SSD1306* _lcd,
+    OLED* _oled,
     byte _pin_register_clock,
     byte _pin_register_latch,
     byte _pin_register_output_enable,
-    byte _pin_register_data,
-    byte _lcd_i2c_address) {
+    byte _pin_register_data) {
     bank_manager = _bank_manager;
     button_reader = _button_reader;
-    lcd = _lcd;
+    oled = _oled;
     pin_register_clock = _pin_register_clock;
     pin_register_latch = _pin_register_latch;
     pin_register_output_enable = _pin_register_output_enable;
     pin_register_data = _pin_register_data;
-    lcd_i2c_address = _lcd_i2c_address;
     mode = effects_mode::basic;
     register_1 = 0;
     register_2 = 0;
@@ -26,13 +23,10 @@ EffectSwitcher::EffectSwitcher(
     current_effects = 0;
 }
 
-void EffectSwitcher::init_lcd() {
-    if (lcd) {
-        lcd->begin(SSD1306_SWITCHCAPVCC, lcd_i2c_address);
-        lcd->clearDisplay();
-        lcd->setTextColor(WHITE);
-        lcd->setTextSize(1);
-        lcd->setCursor(0,0);
+void EffectSwitcher::init_oled() {
+    if (oled) {
+        oled->init();
+        oled->clearDisplay();
     }
 }
 
@@ -48,7 +42,7 @@ void EffectSwitcher::init_register() {
 
 void EffectSwitcher::init() {
     Serial.begin(SERIAL_RATE);
-    init_lcd();
+    init_oled();
     display("Starting...", 0, 0, true);
     init_register();
     button_reader->init();
@@ -59,21 +53,17 @@ void EffectSwitcher::init() {
 }
 
 void EffectSwitcher::clear_display() {
-    if (lcd) {
-        lcd->clearDisplay();
-        lcd->setCursor(0, 0);
+    if (oled) {
+        oled->clearDisplay();
     }
 }
 
 void EffectSwitcher::display(String message, int row, int col, bool clear) {
-    if (lcd) {
+    if (oled) {
         if (clear) {
             clear_display();
         }
-        lcd->setTextColor(WHITE);
-        lcd->setTextSize(1);
-        lcd->setCursor(col, row);
-        lcd->print(message);
+        oled->print(message, row, col);
     }
 }
 
@@ -140,9 +130,11 @@ void EffectSwitcher::read_and_apply() {
 void EffectSwitcher::set_bank_mode() {
     if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
         mode = effects_mode::basic;
+        Serial.println("Effect Mode");
         display("Effect Mode", 1, 0, true);
     } else {
         mode = effects_mode::bank;
+        Serial.println(String("Bank Mode - Bank ") + bank_manager->get_current_bank_number());
         display(String("Bank ") + bank_manager->get_current_bank_number(), 1, 0, true);
     }
 }

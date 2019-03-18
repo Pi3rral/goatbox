@@ -1,10 +1,8 @@
 #ifndef EFFECTSWITCHER_H
 #define EFFECTSWITCHER_H
-
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 #include "BankManager.h"
 #include "ButtonReader.h"
+#include "OLED.h"
 
 
 #define SERIAL_RATE 115200
@@ -32,9 +30,7 @@ class EffectSwitcher {
 protected:
     BankManager* bank_manager = 0;
     ButtonReader* button_reader = 0;
-    Adafruit_SSD1306* lcd = 0;
-
-    byte lcd_i2c_address = 0;
+    OLED* oled = 0;
 
     byte pin_register_clock;
     byte pin_register_latch;
@@ -58,7 +54,7 @@ protected:
     virtual void compute_registers(byte patch, byte effects);
     virtual void select_patch_and_effect(byte patch, byte effects);
     void select_bank_patch(byte patch_number);
-    void init_lcd();
+    void init_oled();
     void init_register();
     void display(String message, int row = 0, int col = 0, bool clear = false);
     void clear_display();
@@ -67,12 +63,11 @@ public:
     EffectSwitcher(
         ButtonReader* _button_reader, 
         BankManager* _bank_manager, 
-        Adafruit_SSD1306* _lcd,
+        OLED* _oled,
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
-        byte _pin_register_data,
-        byte _lcd_i2c_address);
+        byte _pin_register_data);
     virtual void init();
     virtual void read_and_apply();
 
