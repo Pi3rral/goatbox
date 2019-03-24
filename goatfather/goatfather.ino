@@ -3,7 +3,7 @@
 #include "ButtonReader.h"
 #include "BankManager.h"
 #include "OLED.h"
-
+#include "AlterNation.h"
 
 // ButtonReader parameters
 #define NUMBER_OF_BUTTON 10
@@ -15,7 +15,7 @@
 
 // BankManager parameters
 #define EEPROM_START_ADDRESS 0
-#define NUMBER_OF_BANKS 8
+#define NUMBER_OF_BANKS 2
 #define PATCHES_PER_BANK 7
 
 // EffectSwitcher parameters
@@ -47,7 +47,7 @@ EffectSwitcher effect_switcher(
 );
 
 void setup() {
-    effect_switcher.init();
+    effect_switcher.init(AlterNation_Banks);
 }
 
 void loop() {

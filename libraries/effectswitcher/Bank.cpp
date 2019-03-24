@@ -2,13 +2,23 @@
 #include "Patch.h"
 
 
-Bank::Bank(int _bank_number, int _eeprom_address, int _total_patches, bool _load_predefined) {
+Bank::Bank(String _bank_name, int _total_patches, Patch** _patches) {
+    bank_name = _bank_name;
+    total_patches = _total_patches;
+    patches = _patches;
+    selected_patch = 0;
+    can_edit = false;
+}
+
+Bank::Bank(int _bank_number, int _eeprom_address, int _total_patches) {
     bank_number = _bank_number;
     eeprom_address = _eeprom_address;
     total_patches = _total_patches;
     patches = new Patch*[total_patches];
     selected_patch = 0;
-    load(_load_predefined);
+    bank_name = "";
+    can_edit = true;
+    load();
 }
 
 Bank::~Bank() {
@@ -18,15 +28,12 @@ Bank::~Bank() {
     delete patches;
 }
 
-void Bank::load(bool _load_predefined) {
+void Bank::load() {
     Serial.println(String("Loading Bank ") + bank_number);
     int selected_effects = 0;
     for (int i = 0; i < total_patches; ++i) {
         selected_effects = 0;
-        if (_load_predefined) {
-            // selected_effects = predefined_patches[bank_number][i];
-        }
-        patches[i] = new Patch(i, eeprom_address + i, selected_effects, !_load_predefined);
+        patches[i] = new Patch(i, eeprom_address + i, selected_effects, true);
     }
 }
 

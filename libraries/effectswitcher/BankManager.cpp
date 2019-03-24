@@ -2,7 +2,9 @@
 #include "Bank.h"
 
 
-BankManager::BankManager(int _start_eeprom_address, int _total_banks, int _patches_per_bank) {
+BankManager::BankManager(int _start_eeprom_address, 
+                         int _total_banks, 
+                         int _patches_per_bank) {
     current_bank = 0;
     start_eeprom_address = _start_eeprom_address;
     total_banks = _total_banks;
@@ -16,10 +18,16 @@ BankManager::~BankManager() {
     delete banks;
 }
 
-void BankManager::init(bool _load_predefined) {
-    banks = new Bank*[total_banks];
+void BankManager::init(Bank** _additional_banks) {
+    banks = new Bank*[total_banks + sizeof(_additional_banks)];
     for (int i = 0; i < total_banks; ++i) {
-        banks[i] = new Bank(i, start_eeprom_address + (i * patches_per_bank), patches_per_bank, _load_predefined);
+        banks[i] = new Bank(i, start_eeprom_address + (i * patches_per_bank), patches_per_bank);
+    }
+    if (_additional_banks != nullptr) {
+        for (int i = 0; i < sizeof(_additional_banks); ++i) {
+            banks[total_banks + i + 1] = _additional_banks[i];
+        }
+        total_banks += sizeof(_additional_banks);
     }
 }
 

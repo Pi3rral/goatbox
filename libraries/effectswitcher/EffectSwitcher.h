@@ -56,7 +56,9 @@ protected:
     void select_bank_patch(byte patch_number);
     void init_oled();
     void init_register();
-    void display(String message, int row = 0, int col = 0, bool clear = false);
+    void display(String message, bool clear = false);
+    void displayBankNumber();
+    void displayEditMode();
     void clear_display();
 
 public:
@@ -68,7 +70,7 @@ public:
         byte _pin_register_latch,
         byte _pin_register_output_enable,
         byte _pin_register_data);
-    virtual void init();
+    virtual void init(Bank** _additional_banks = nullptr);
     virtual void read_and_apply();
 
 };

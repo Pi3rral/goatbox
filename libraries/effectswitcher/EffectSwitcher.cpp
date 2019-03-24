@@ -40,32 +40,52 @@ void EffectSwitcher::init_register() {
     digitalWrite(pin_register_output_enable, LOW);
 }
 
-void EffectSwitcher::init() {
+void EffectSwitcher::init(Bank** _additional_banks) {
     Serial.begin(SERIAL_RATE);
     init_oled();
-    display("Starting...", 0, 0, true);
+    display("Starting...", true);
     init_register();
     button_reader->init();
-    bank_manager->init();
+    bank_manager->init(_additional_banks);
     unselect_all();
-    display("Effect Mode", 0, 0, true);
+    displayBankNumber();
     Serial.println("GoatFather initialized");
 }
 
-void EffectSwitcher::clear_display() {
+void EffectSwitcher::display(String message, bool clear) {
     if (oled) {
-        oled->clearDisplay();
+        if (clear) {
+            oled->clearDisplay();
+        }
+        oled->print(message);
     }
 }
 
-void EffectSwitcher::display(String message, int row, int col, bool clear) {
+void EffectSwitcher::displayBankNumber() {
     if (oled) {
-        if (clear) {
-            clear_display();
+        oled->clearDisplay();
+        if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
+            oled->print("No Bank");
+            Serial.println("No Bank");
+        } else {
+            Bank* current_bank = bank_manager->get_current_bank();
+            if (!current_bank->get_bank_name().equals("")) {
+                oled->print(current_bank->get_bank_name());
+                Serial.println("Bank Name: " + current_bank->get_bank_name());
+            } else {
+                oled->printBankNumber(bank_manager->get_current_bank_number());
+                Serial.println("Bank Number: " + String(bank_manager->get_current_bank_number()));
+            }
         }
-        oled->print(message, row, col);
     }
 }
+
+void EffectSwitcher::displayEditMode() {
+    if (oled) {
+        oled->printEditMode();
+    }
+}
+
 
 void EffectSwitcher::read_and_apply() {
     button_reader->read();
@@ -119,7 +139,7 @@ void EffectSwitcher::read_and_apply() {
         } else if (action == button_state::long_pressed && mode == effects_mode::bank) {
             if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
                 Serial.println("Now in EDIT MODE");
-                display(String("Edit Patch ") + bank_manager->get_current_bank()->get_selected_patch_number() + 1, 2);
+                displayEditMode();
                 mode = effects_mode::edit;
             }
         }
@@ -131,12 +151,11 @@ void EffectSwitcher::set_bank_mode() {
     if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
         mode = effects_mode::basic;
         Serial.println("Effect Mode");
-        display("Effect Mode", 1, 0, true);
     } else {
         mode = effects_mode::bank;
         Serial.println(String("Bank Mode - Bank ") + bank_manager->get_current_bank_number());
-        display(String("Bank ") + bank_manager->get_current_bank_number(), 1, 0, true);
     }
+    displayBankNumber();
 }
 
 void EffectSwitcher::read_basic_mode(int button_actionned) {
@@ -159,7 +178,7 @@ void EffectSwitcher::toggle_boost() {
 }
 
 void EffectSwitcher::save_patch() {
-    display("Saving...", 2);
+    display("Saving...", true);
     Serial.println("Save Effects");
     bank_manager->get_current_bank()->get_selected_patch()->save(current_effects);
     delay(500);
@@ -170,7 +189,7 @@ void EffectSwitcher::cancel_edit() {
     Serial.println("Cancel Edit");
     mode = effects_mode::bank;
     select_bank_patch(bank_manager->get_current_bank()->get_selected_patch_number());
-    display(String("Bank ") + bank_manager->get_current_bank_number(), 1, 0, true);
+    displayBankNumber();
 }
 
 void EffectSwitcher::unselect_all() {

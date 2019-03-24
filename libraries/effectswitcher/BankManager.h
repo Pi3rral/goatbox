@@ -6,7 +6,6 @@
 #define DEFAULT_START_EEPROM_ADDRESS 0
 #define DEFAULT_NUMBER_OF_BANKS 8
 #define DEFAULT_PATCHES_PER_BANK 8
-#define DEFAULT_LOAD_PREDEFINED false
 
 
 class BankManager {
@@ -24,7 +23,7 @@ public:
                 int _patches_per_bank = DEFAULT_PATCHES_PER_BANK);
     ~BankManager();
 
-    void init(bool _load_predefined = DEFAULT_LOAD_PREDEFINED);
+    void init(Bank** _additional_banks = nullptr);
 
     Bank * next();
     Bank * previous();

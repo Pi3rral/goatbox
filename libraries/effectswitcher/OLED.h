@@ -8,9 +8,9 @@ public:
     OLED();
     void init();
     void clearDisplay();
-    void print(String message, int row, int col);
-    // void printBankNumber(int bank_number);
-    // void printEditMode();
+    void print(String message);
+    void printBankNumber(int bank_number);
+    void printEditMode();
 };
 
 #endif // OLED_H

@@ -21,7 +21,7 @@ void OLED::clearDisplay() {
     ssd1306_clearScreen();
 }
 
-void OLED::print(String message, int row, int col) {
+void OLED::print(String message) {
     // font size in nano_gfx_types.h
     ssd1306_printFixedN(0, 0, message.c_str(), STYLE_NORMAL, FONT_SIZE_2X);
 
@@ -37,10 +37,10 @@ void OLED::print(String message, int row, int col) {
     // delay(3000);
 }
 
-// void OLED::printBankNumber(int bank_number) {
+void OLED::printBankNumber(int bank_number) {
+    ssd1306_printFixedN(0, 0, String(bank_number).c_str(), STYLE_NORMAL, FONT_SIZE_8X);
+}
 
-// }
-
-// void OLED::printEditMode() {
-
-// }
+void OLED::printEditMode() {
+    ssd1306_printFixedN(112, 0, "E", STYLE_BOLD, FONT_SIZE_2X);
+}
