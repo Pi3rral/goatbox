@@ -1,5 +1,6 @@
 #ifndef EFFECTSWITCHER_H
 #define EFFECTSWITCHER_H
+#include "types.h"
 #include "BankManager.h"
 #include "ButtonReader.h"
 #include "OLED.h"
@@ -63,14 +64,18 @@ protected:
 
 public:
     EffectSwitcher(
-        ButtonReader* _button_reader, 
-        BankManager* _bank_manager, 
-        OLED* _oled,
+        // ButtonReader* _button_reader, 
+        // BankManager* _bank_manager, 
+        // OLED* _oled,
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
         byte _pin_register_data);
-    virtual void init(Bank** _additional_banks = nullptr);
+    virtual void init(
+        ButtonReader* _button_reader, 
+        BankManager* _bank_manager, 
+        OLED* _oled
+    );
     virtual void read_and_apply();
 
 };

@@ -15,7 +15,7 @@
 
 // BankManager parameters
 #define EEPROM_START_ADDRESS 0
-#define NUMBER_OF_BANKS 2
+#define NUMBER_OF_BANKS 16
 #define PATCHES_PER_BANK 7
 
 // EffectSwitcher parameters
@@ -24,22 +24,7 @@
 #define OUTPUT_ENABLE_PIN 10 //Connected to output enable (G_) of TPIC6B595N
 #define DATA_PIN 11 //Connected to Data in (SER_IN) of TPIC6B595N
 
-
-ButtonReader* button_reader = new ButtonReaderRegister(
-    NUMBER_OF_BUTTON,
-    IN_LOAD_PIN,
-    IN_CLOCK_PIN,
-    IN_CLOCK_ENABLE_PIN,
-    IN_DATA_PIN,
-    NUMBER_OF_SHIFT_REGISTER
-);
-BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_BANKS, PATCHES_PER_BANK);
-OLED* oled = new OLED();
-
 EffectSwitcher effect_switcher(
-    button_reader, 
-    bank_manager, 
-    oled,
     CLOCK_PIN,
     LATCH_PIN,
     OUTPUT_ENABLE_PIN,
@@ -47,7 +32,27 @@ EffectSwitcher effect_switcher(
 );
 
 void setup() {
-    effect_switcher.init(AlterNation_Banks);
+    ButtonReader* button_reader = new ButtonReaderRegister(
+        NUMBER_OF_BUTTON,
+        IN_LOAD_PIN,
+        IN_CLOCK_PIN,
+        IN_CLOCK_ENABLE_PIN,
+        IN_DATA_PIN,
+        NUMBER_OF_SHIFT_REGISTER
+    );
+    BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_BANKS, PATCHES_PER_BANK);
+    OLED* oled = new OLED();
+
+    button_reader->init();
+    bank_manager->init(AlterNation_Banks);
+    oled->init();
+    oled->clearDisplay();
+
+    effect_switcher.init(
+        button_reader,
+        bank_manager,
+        oled
+    );
 }
 
 void loop() {

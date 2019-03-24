@@ -1,6 +1,6 @@
 #ifndef GOATBOX_BANKMANAGER_H
 #define GOATBOX_BANKMANAGER_H
-
+#include "types.h"
 #include "Bank.h"
 
 #define DEFAULT_START_EEPROM_ADDRESS 0
