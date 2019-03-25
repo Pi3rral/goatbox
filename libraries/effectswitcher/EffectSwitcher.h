@@ -1,6 +1,6 @@
 #ifndef EFFECTSWITCHER_H
 #define EFFECTSWITCHER_H
-#include "types.h"
+#include <Arduino.h>
 #include "BankManager.h"
 #include "ButtonReader.h"
 #include "OLED.h"
@@ -64,9 +64,6 @@ protected:
 
 public:
     EffectSwitcher(
-        // ButtonReader* _button_reader, 
-        // BankManager* _bank_manager, 
-        // OLED* _oled,
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,

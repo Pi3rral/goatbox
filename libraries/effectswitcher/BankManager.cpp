@@ -1,60 +1,61 @@
 #include "BankManager.h"
-#include "Bank.h"
+#include <EEPROM.h>
 
 
 BankManager::BankManager(int _start_eeprom_address, 
-                         int _total_banks, 
+                         int _number_eeprom_banks, 
                          int _patches_per_bank) {
     current_bank = 0;
+    current_patch = 0;
+    number_additional_banks = 0;
     start_eeprom_address = _start_eeprom_address;
-    total_banks = _total_banks;
+    number_eeprom_banks = _number_eeprom_banks;
     patches_per_bank = _patches_per_bank;
 }
 
-BankManager::~BankManager() {
-    for (int i = 0; i < total_banks; ++i) {
-        delete banks[i];
-    }
-    delete banks;
+BankManager::~BankManager() { }
+
+void BankManager::init(BankDefinition* _additional_banks) {
+    additional_banks = _additional_banks;
+    number_additional_banks = sizeof(additional_banks);
 }
 
-void BankManager::init(Bank** _additional_banks) {
-    banks = new Bank*[total_banks + sizeof(_additional_banks)];
-    for (int i = 0; i < total_banks; ++i) {
-        banks[i] = new Bank(i, start_eeprom_address + (i * patches_per_bank), patches_per_bank);
-    }
-    if (_additional_banks != nullptr) {
-        for (int i = 0; i < sizeof(_additional_banks); ++i) {
-            banks[total_banks + i + 1] = _additional_banks[i];
-        }
-        total_banks += sizeof(_additional_banks);
-    }
-}
-
-Bank * BankManager::next() {
+byte BankManager::next() {
     ++current_bank;
-    if (current_bank >= total_banks) {
+    if (current_bank >= number_eeprom_banks) {
         current_bank = 0;
     }
-    return get_current_bank();
+    current_patch = 0;
+    return get_selected_effects();
 }
 
-Bank * BankManager::previous() {
+byte BankManager::previous() {
     --current_bank;
     if (current_bank < 0) {
-        current_bank = total_banks - 1;
+        current_bank = number_eeprom_banks - 1;
     }
-    return get_current_bank();
+    current_patch = 0;
+    return get_selected_effects();
 }
 
-Bank * BankManager::get_current_bank() const {
-    return banks[current_bank];
+byte BankManager::get_selected_effects(byte patch_number) {
+    current_patch = patch_number;
+    return load_effects_from_eeprom();
 }
 
-void BankManager::set_current_bank(int _bank_number) {
-    current_bank = _bank_number;
+byte BankManager::load_effects_from_eeprom() {
+    Serial.println("Read from eeprom address: " + String(get_eeprom_address()));
+    return EEPROM.read(get_eeprom_address());
 }
 
-int BankManager::get_current_bank_number() const {
-    return current_bank;
+byte BankManager::save_effect_selection(byte _selected_effects) {
+    Serial.println("Write to eeprom address: " + String(get_eeprom_address()));
+    EEPROM.write(get_eeprom_address(), _selected_effects);
+    return load_effects_from_eeprom();
+}
+
+int BankManager::get_eeprom_address() {
+    return start_eeprom_address + 
+    (current_bank * patches_per_bank) + 
+    current_patch;
 }

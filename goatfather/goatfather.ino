@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include "EffectSwitcher.h"
 #include "ButtonReader.h"
 #include "BankManager.h"
@@ -15,7 +14,7 @@
 
 // BankManager parameters
 #define EEPROM_START_ADDRESS 0
-#define NUMBER_OF_BANKS 16
+#define NUMBER_OF_EEPROM_BANKS 36
 #define PATCHES_PER_BANK 7
 
 // EffectSwitcher parameters
@@ -40,13 +39,12 @@ void setup() {
         IN_DATA_PIN,
         NUMBER_OF_SHIFT_REGISTER
     );
-    BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_BANKS, PATCHES_PER_BANK);
+    BankManager* bank_manager = new BankManager(EEPROM_START_ADDRESS, NUMBER_OF_EEPROM_BANKS, PATCHES_PER_BANK);
     OLED* oled = new OLED();
 
     button_reader->init();
     bank_manager->init(AlterNation_Banks);
     oled->init();
-    oled->clearDisplay();
 
     effect_switcher.init(
         button_reader,

@@ -2,16 +2,10 @@
 #include "ButtonReader.h"
 
 EffectSwitcher::EffectSwitcher(
-    // ButtonReader * _button_reader, 
-    // BankManager* _bank_manager, 
-    // OLED* _oled,
     byte _pin_register_clock,
     byte _pin_register_latch,
     byte _pin_register_output_enable,
     byte _pin_register_data) {
-    // bank_manager = _bank_manager;
-    // button_reader = _button_reader;
-    // oled = _oled;
     pin_register_clock = _pin_register_clock;
     pin_register_latch = _pin_register_latch;
     pin_register_output_enable = _pin_register_output_enable;
@@ -70,14 +64,14 @@ void EffectSwitcher::displayBankNumber() {
             oled->print("No Bank");
             Serial.println("No Bank");
         } else {
-            Bank* current_bank = bank_manager->get_current_bank();
-            if (!current_bank->get_bank_name().equals("")) {
-                oled->print(current_bank->get_bank_name());
-                Serial.println("Bank Name: " + current_bank->get_bank_name());
-            } else {
+            // Bank current_bank = bank_manager->get_current_bank();
+            // if (!current_bank.get_bank_name().equals("")) {
+            //     oled->print(current_bank.get_bank_name());
+            //     Serial.println("Bank Name: " + current_bank.get_bank_name());
+            // } else {
                 oled->printBankNumber(bank_manager->get_current_bank_number());
                 Serial.println("Bank Number: " + String(bank_manager->get_current_bank_number()));
-            }
+            // }
         }
     }
 }
@@ -182,7 +176,7 @@ void EffectSwitcher::toggle_boost() {
 void EffectSwitcher::save_patch() {
     display("Saving...", true);
     Serial.println("Save Effects");
-    bank_manager->get_current_bank()->save_patch(current_effects);
+    bank_manager->save_effect_selection(current_effects);
     delay(500);
     cancel_edit();
 }
@@ -190,7 +184,7 @@ void EffectSwitcher::save_patch() {
 void EffectSwitcher::cancel_edit() {
     Serial.println("Cancel Edit");
     mode = effects_mode::bank;
-    select_bank_patch(bank_manager->get_current_bank()->get_selected_patch_number());
+    select_bank_patch(bank_manager->get_selected_effects());
     displayBankNumber();
 }
 
@@ -201,7 +195,7 @@ void EffectSwitcher::unselect_all() {
 
 void EffectSwitcher::select_bank_patch(byte patch_number) {
     unselect_all();
-    byte effects = bank_manager->get_current_bank()->select_patch(patch_number);
+    byte effects = bank_manager->get_selected_effects(patch_number);
     byte patch_activated = 0;
     bitWrite(patch_activated, patch_number, HIGH);
     Serial.println(String("Select effects: ") + effects);

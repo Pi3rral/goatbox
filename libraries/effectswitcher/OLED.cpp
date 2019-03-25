@@ -1,6 +1,7 @@
 #include "OLED.h"
 
 // using https://github.com/lexus2k/ssd1306
+#include <Wire.h>
 #include "ssd1306.h"
 #include "nano_gfx.h"
 
