@@ -1,5 +1,6 @@
 #include "EffectSwitcher.h"
 #include "ButtonReader.h"
+#include "Debug.h"
 
 EffectSwitcher::EffectSwitcher(
     byte _pin_register_clock,
@@ -44,7 +45,7 @@ void EffectSwitcher::init(ButtonReader* _button_reader,
     init_register();
     unselect_all();
     displayBankNumber();
-    Serial.println("GoatFather initialized");
+    Debug::print("GoatFather initialized");
 }
 
 void EffectSwitcher::display(String message, bool clear) {
@@ -61,14 +62,14 @@ void EffectSwitcher::displayBankNumber() {
         oled->clearDisplay();
         if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
             oled->print("No Bank");
-            Serial.println("No Bank");
+            Debug::print("No Bank");
         } else {
             if (bank_manager->get_current_bank_name() != nullptr) {
                 oled->print(bank_manager->get_current_bank_name());
-                Serial.println("Bank Name: " + String(bank_manager->get_current_bank_name()));
+                Debug::print("Bank Name: " + String(bank_manager->get_current_bank_name()));
             } else {
                 oled->printBankNumber(bank_manager->get_current_bank_number());
-                Serial.println("Bank Number: " + String(bank_manager->get_current_bank_number()));
+                Debug::print("Bank Number: " + String(bank_manager->get_current_bank_number()));
             }
         }
     }
@@ -92,7 +93,7 @@ void EffectSwitcher::read_and_apply() {
                     save_patch();
                 } else {
                     bank_manager->previous();
-                    // Serial.println(String("Previous Bank: ") + bank_manager->get_current_bank_number());
+                    // Debug::print(String("Previous Bank: ") + bank_manager->get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }
@@ -101,7 +102,7 @@ void EffectSwitcher::read_and_apply() {
                     cancel_edit();
                 } else {
                     bank_manager->next();
-                    // Serial.println(String("Next Bank: ") + bank_manager->get_current_bank_number());
+                    // Debug::print(String("Next Bank: ") + bank_manager->get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }
@@ -110,12 +111,12 @@ void EffectSwitcher::read_and_apply() {
             } else {
                 switch(mode) {
                     case effects_mode::basic: {
-                        Serial.println("Read Basic Mode");
+                        Debug::print("Read Basic Mode");
                         read_basic_mode(button_actionned);
                         break;            
                     }
                     case effects_mode::bank: {
-                        Serial.println("Read Bank Mode");
+                        Debug::print("Read Bank Mode");
                         if (bitRead(current_patch, button_actionned)) {
                             unselect_all();
                         } else {
@@ -124,7 +125,7 @@ void EffectSwitcher::read_and_apply() {
                         break;
                     }
                     case effects_mode::edit: {
-                        Serial.println("Read Edit Mode");
+                        Debug::print("Read Edit Mode");
                         read_edit_mode(button_actionned);
                         break;
                     }
@@ -132,7 +133,7 @@ void EffectSwitcher::read_and_apply() {
             }
         } else if (action == button_state::long_pressed && mode == effects_mode::bank) {
             if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
-                Serial.println("Now in EDIT MODE");
+                Debug::print("Now in EDIT MODE");
                 displayEditMode();
                 mode = effects_mode::edit;
             }
@@ -144,10 +145,10 @@ void EffectSwitcher::read_and_apply() {
 void EffectSwitcher::set_bank_mode() {
     if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
         mode = effects_mode::basic;
-        Serial.println("Effect Mode");
+        Debug::print("Effect Mode");
     } else {
         mode = effects_mode::bank;
-        Serial.println(String("Bank Mode - Bank ") + bank_manager->get_current_bank_number());
+        Debug::print(String("Bank Mode - Bank ") + bank_manager->get_current_bank_number());
     }
     displayBankNumber();
 }
@@ -173,21 +174,21 @@ void EffectSwitcher::toggle_boost() {
 
 void EffectSwitcher::save_patch() {
     display("Saving...", true);
-    Serial.println("Save Effects");
+    Debug::print("Save Effects");
     bank_manager->save_effect_selection(current_effects);
     delay(500);
     cancel_edit();
 }
 
 void EffectSwitcher::cancel_edit() {
-    Serial.println("Cancel Edit");
+    Debug::print("Cancel Edit");
     mode = effects_mode::bank;
     select_bank_patch(bank_manager->get_selected_effects());
     displayBankNumber();
 }
 
 void EffectSwitcher::unselect_all() {
-    Serial.println(String("Unselect All"));
+    Debug::print(String("Unselect All"));
     select_patch_and_effect(0, 0);
 }
 
@@ -196,7 +197,7 @@ void EffectSwitcher::select_bank_patch(byte patch_number) {
     byte effects = bank_manager->get_selected_effects(patch_number);
     byte patch_activated = 0;
     bitWrite(patch_activated, patch_number, HIGH);
-    Serial.println(String("Select effects: ") + effects);
+    Debug::print(String("Select effects: ") + effects);
     select_patch_and_effect(patch_activated, effects);
 }
 

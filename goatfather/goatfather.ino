@@ -3,6 +3,7 @@
 #include "BankManager.h"
 #include "OLED.h"
 #include "AlterNation.h"
+#include "Debug.h"
 
 // ButtonReader parameters
 #define NUMBER_OF_BUTTON 10
@@ -31,7 +32,7 @@ EffectSwitcher effect_switcher(
 );
 
 void setup() {
-    Serial.begin(SERIAL_RATE);
+    Debug::init(false);
 
     ButtonReader* button_reader = new ButtonReaderRegister(
         NUMBER_OF_BUTTON,

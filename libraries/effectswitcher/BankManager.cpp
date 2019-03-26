@@ -1,5 +1,6 @@
 #include "BankManager.h"
 #include <EEPROM.h>
+#include "Debug.h"
 
 
 BankManager::BankManager(int _start_eeprom_address, 
@@ -18,7 +19,7 @@ BankManager::~BankManager() { }
 void BankManager::init(struct BankDefinition* _additional_banks, int _add_banks_size) {
     additional_banks = _additional_banks;
     number_additional_banks = _add_banks_size;
-    Serial.println(String("Additionnal banks: ") + number_additional_banks);
+    Debug::print(String("Additionnal banks: ") + number_additional_banks);
 }
 
 byte BankManager::next() {
@@ -49,12 +50,12 @@ byte BankManager::get_selected_effects(byte patch_number) {
 }
 
 byte BankManager::load_effects_from_eeprom() {
-    Serial.println("Read from eeprom address: " + String(get_eeprom_address()));
+    Debug::print("Read from eeprom address: " + String(get_eeprom_address()));
     return EEPROM.read(get_eeprom_address());
 }
 
 byte BankManager::save_effect_selection(byte _selected_effects) {
-    Serial.println("Write to eeprom address: " + String(get_eeprom_address()));
+    Debug::print("Write to eeprom address: " + String(get_eeprom_address()));
     EEPROM.write(get_eeprom_address(), _selected_effects);
     return load_effects_from_eeprom();
 }
