@@ -33,7 +33,7 @@ public:
                 int _patches_per_bank = DEFAULT_PATCHES_PER_BANK);
     ~BankManager();
 
-    void init(BankDefinition* _additional_banks);
+    void init(struct BankDefinition* _additional_banks, int _add_banks_size = 0);
 
     byte next();
     byte previous();
@@ -42,6 +42,7 @@ public:
     byte save_effect_selection(byte _selected_effects);
 
     int get_current_bank_number() const { return current_bank; };
+    char * get_current_bank_name() const;
     int get_current_patch_number() const { return current_patch; };
 };
 

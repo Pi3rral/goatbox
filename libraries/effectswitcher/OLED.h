@@ -8,7 +8,7 @@ public:
     OLED();
     void init();
     void clearDisplay();
-    void print(String message);
+    void print(const char* message);
     void printBankNumber(int bank_number);
     void printEditMode();
 };

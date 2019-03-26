@@ -15,14 +15,15 @@ BankManager::BankManager(int _start_eeprom_address,
 
 BankManager::~BankManager() { }
 
-void BankManager::init(BankDefinition* _additional_banks) {
+void BankManager::init(struct BankDefinition* _additional_banks, int _add_banks_size) {
     additional_banks = _additional_banks;
-    number_additional_banks = sizeof(additional_banks);
+    number_additional_banks = _add_banks_size;
+    Serial.println(String("Additionnal banks: ") + number_additional_banks);
 }
 
 byte BankManager::next() {
     ++current_bank;
-    if (current_bank >= number_eeprom_banks) {
+    if (current_bank >= number_eeprom_banks + number_additional_banks) {
         current_bank = 0;
     }
     current_patch = 0;
@@ -32,7 +33,7 @@ byte BankManager::next() {
 byte BankManager::previous() {
     --current_bank;
     if (current_bank < 0) {
-        current_bank = number_eeprom_banks - 1;
+        current_bank = number_eeprom_banks + number_additional_banks - 1;
     }
     current_patch = 0;
     return get_selected_effects();
@@ -40,7 +41,11 @@ byte BankManager::previous() {
 
 byte BankManager::get_selected_effects(byte patch_number) {
     current_patch = patch_number;
-    return load_effects_from_eeprom();
+    if (current_bank >= number_eeprom_banks) {
+        return additional_banks[current_bank-number_eeprom_banks].patches[current_patch];
+    } else {
+        return load_effects_from_eeprom();
+    }
 }
 
 byte BankManager::load_effects_from_eeprom() {
@@ -58,4 +63,11 @@ int BankManager::get_eeprom_address() {
     return start_eeprom_address + 
     (current_bank * patches_per_bank) + 
     current_patch;
+}
+
+char * BankManager::get_current_bank_name() const {
+    if (current_bank >= number_eeprom_banks) {
+        return additional_banks[current_bank-number_eeprom_banks].name;
+    } 
+    return nullptr;
 }

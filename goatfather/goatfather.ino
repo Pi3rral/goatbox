@@ -14,7 +14,7 @@
 
 // BankManager parameters
 #define EEPROM_START_ADDRESS 0
-#define NUMBER_OF_EEPROM_BANKS 36
+#define NUMBER_OF_EEPROM_BANKS 10
 #define PATCHES_PER_BANK 7
 
 // EffectSwitcher parameters
@@ -31,6 +31,8 @@ EffectSwitcher effect_switcher(
 );
 
 void setup() {
+    Serial.begin(SERIAL_RATE);
+
     ButtonReader* button_reader = new ButtonReaderRegister(
         NUMBER_OF_BUTTON,
         IN_LOAD_PIN,
@@ -43,7 +45,7 @@ void setup() {
     OLED* oled = new OLED();
 
     button_reader->init();
-    bank_manager->init(AlterNation_Banks);
+    bank_manager->init(AlterNation_Banks, ADDITIONAL_BANKS_NUMBER);
     oled->init();
 
     effect_switcher.init(

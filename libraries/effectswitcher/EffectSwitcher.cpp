@@ -40,7 +40,6 @@ void EffectSwitcher::init(ButtonReader* _button_reader,
     bank_manager = _bank_manager;
     button_reader = _button_reader;
     oled = _oled;
-    Serial.begin(SERIAL_RATE);
     display("Starting...", true);
     init_register();
     unselect_all();
@@ -53,7 +52,7 @@ void EffectSwitcher::display(String message, bool clear) {
         if (clear) {
             oled->clearDisplay();
         }
-        oled->print(message);
+        oled->print(message.c_str());
     }
 }
 
@@ -64,14 +63,13 @@ void EffectSwitcher::displayBankNumber() {
             oled->print("No Bank");
             Serial.println("No Bank");
         } else {
-            // Bank current_bank = bank_manager->get_current_bank();
-            // if (!current_bank.get_bank_name().equals("")) {
-            //     oled->print(current_bank.get_bank_name());
-            //     Serial.println("Bank Name: " + current_bank.get_bank_name());
-            // } else {
+            if (bank_manager->get_current_bank_name() != nullptr) {
+                oled->print(bank_manager->get_current_bank_name());
+                Serial.println("Bank Name: " + String(bank_manager->get_current_bank_name()));
+            } else {
                 oled->printBankNumber(bank_manager->get_current_bank_number());
                 Serial.println("Bank Number: " + String(bank_manager->get_current_bank_number()));
-            // }
+            }
         }
     }
 }
@@ -93,8 +91,8 @@ void EffectSwitcher::read_and_apply() {
                 if (mode == effects_mode::edit) {
                     save_patch();
                 } else {
-                    Serial.println(String("Previous Bank: ") + bank_manager->get_current_bank_number());
                     bank_manager->previous();
+                    // Serial.println(String("Previous Bank: ") + bank_manager->get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }
@@ -102,8 +100,8 @@ void EffectSwitcher::read_and_apply() {
                 if (mode == effects_mode::edit) {
                     cancel_edit();
                 } else {
-                    Serial.println(String("Next Bank: ") + bank_manager->get_current_bank_number());
                     bank_manager->next();
+                    // Serial.println(String("Next Bank: ") + bank_manager->get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }

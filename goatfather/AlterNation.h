@@ -11,18 +11,41 @@
 #define DISTORTION        16
 #define MODULATION_AFTER  32
 #define DELAY             64
-#define BOOSTER_AFTER     128
+#define BOOST_AFTER     128
 
 struct BankDefinition blink_182_whats_my_age_again = {
-    "What's my age again-Blink 182",
+    "What's my age again Blink 182",
     {
         (byte)(BOOST_BEFORE + DISTORTION),
-        (byte)(MODULATION_BEFORE)
+        (byte)(MODULATION_BEFORE),
+        (byte)(BOOST_BEFORE)
+    }
+};
+struct BankDefinition blink_182_all_the_small_things = {
+    "All The   Small     Things    Blink 182",
+    {
+        (byte)(BOOST_BEFORE + DISTORTION),
+        (byte)(MODULATION_BEFORE),
+        (byte)(BOOST_BEFORE)
+    }
+};
+struct BankDefinition smashing_pumpkins_bullet = {
+    "Bullet w/ Butterfly Wings     Smashing",
+    {
+        (byte)(BOOST_BEFORE + DISTORTION),
+        (byte)(MODULATION_BEFORE),
+        (byte)(BOOST_BEFORE + DISTORTION + MODULATION_BEFORE),
+        (byte)(BOOST_BEFORE + DISTORTION + MODULATION_BEFORE + BOOST_AFTER),
     }
 };
 
-struct BankDefinition AlterNation_Banks[1] = {
-    blink_182_whats_my_age_again
+
+#define ADDITIONAL_BANKS_NUMBER 3
+
+struct BankDefinition AlterNation_Banks[ADDITIONAL_BANKS_NUMBER] = {
+    blink_182_whats_my_age_again,
+    blink_182_all_the_small_things,
+    smashing_pumpkins_bullet
 };
 
 

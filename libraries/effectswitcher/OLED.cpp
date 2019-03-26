@@ -22,9 +22,9 @@ void OLED::clearDisplay() {
     ssd1306_clearScreen();
 }
 
-void OLED::print(String message) {
+void OLED::print(const char* message) {
     // font size in nano_gfx_types.h
-    ssd1306_printFixedN(0, 0, message.c_str(), STYLE_NORMAL, FONT_SIZE_2X);
+    ssd1306_printFixedN(0, 0, message, STYLE_NORMAL, FONT_SIZE_2X);
 
     // ssd1306_printFixed(0,  8, "Normal text", STYLE_NORMAL);
     // ssd1306_printFixed(0, 16, "Bold text", STYLE_BOLD);
