@@ -64,8 +64,8 @@ void EffectSwitcher::displayBankNumber() {
             oled->print("No Bank");
             Debug::print("No Bank");
         } else {
-            if (bank_manager->get_current_bank_name() != nullptr) {
-                oled->print(bank_manager->get_current_bank_name());
+            if (!bank_manager->get_current_bank_name().equals("")) {
+                oled->print(bank_manager->get_current_bank_name().c_str());
                 Debug::print("Bank Name: " + String(bank_manager->get_current_bank_name()));
             } else {
                 oled->printBankNumber(bank_manager->get_current_bank_number());

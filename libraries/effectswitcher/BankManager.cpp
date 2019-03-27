@@ -66,9 +66,9 @@ int BankManager::get_eeprom_address() {
     current_patch;
 }
 
-char * BankManager::get_current_bank_name() const {
+String BankManager::get_current_bank_name() const {
     if (current_bank >= number_eeprom_banks) {
         return additional_banks[current_bank-number_eeprom_banks].name;
     } 
-    return nullptr;
+    return "";
 }

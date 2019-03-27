@@ -8,8 +8,8 @@
 #define MAX_BANK_NAME 40
 
 struct BankDefinition {
-    char name[MAX_BANK_NAME];
-    byte patches[DEFAULT_PATCHES_PER_BANK];
+    String name;
+    byte* patches;
 };
 
 
@@ -42,7 +42,7 @@ public:
     byte save_effect_selection(byte _selected_effects);
 
     int get_current_bank_number() const { return current_bank; };
-    char * get_current_bank_name() const;
+    String get_current_bank_name() const;
     int get_current_patch_number() const { return current_patch; };
 };
 
