@@ -13,7 +13,21 @@ ButtonReader::ButtonReader(byte _number_of_buttons, int _long_press_time) {
     }
 }
 
-int ButtonReader::get_actionned_button() {
+bool ButtonReader::is_multiple_button_pressed() {
+    int nb_button_actioned = 0;
+    for (int i = 0; i < number_of_buttons; ++i) {
+        if (buttons_state[i] != button_state::rest) {
+            ++nb_button_actioned;
+        }
+    }
+    return nb_button_actioned > 0;
+}
+
+byte ButtonReader::get_number_of_buttons() {
+    return number_of_buttons;
+}
+
+int ButtonReader::get_actioned_button() {
     for (int i = 0; i < number_of_buttons; ++i) {
         if (buttons_state[i] != button_state::rest) {
             return i;

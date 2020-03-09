@@ -9,6 +9,7 @@
 #define SERIAL_RATE 115200
 #define READING_RATE 100
 #define READING_WAIT_AFTER_ACTION 500
+#define READING_WAIT_AFTER_2_PRESSED 1000
 #define BASIC_MODE_BANK 0
 
 #define PREV_BANK_BUTTON 8
@@ -46,8 +47,8 @@ protected:
     byte register_2 = 0;
 
     void unselect_all();
-    virtual void read_basic_mode(int button_actionned);
-    virtual void read_edit_mode(int button_actionned);
+    virtual void read_basic_mode(int button_actioned);
+    virtual void read_edit_mode(int button_actioned);
     virtual void set_bank_mode();
     void toggle_boost();
     void save_patch();
