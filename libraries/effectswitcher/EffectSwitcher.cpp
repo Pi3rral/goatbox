@@ -6,11 +6,13 @@ EffectSwitcher::EffectSwitcher(
     byte _pin_register_clock,
     byte _pin_register_latch,
     byte _pin_register_output_enable,
-    byte _pin_register_data) {
+    byte _pin_register_data,
+    bool _with_oled) {
     pin_register_clock = _pin_register_clock;
     pin_register_latch = _pin_register_latch;
     pin_register_output_enable = _pin_register_output_enable;
     pin_register_data = _pin_register_data;
+    with_oled = with_oled;
     mode = effects_mode::basic;
     register_1 = 0;
     register_2 = 0;
@@ -19,9 +21,9 @@ EffectSwitcher::EffectSwitcher(
 }
 
 void EffectSwitcher::init_oled() {
-    if (oled) {
-        oled->init();
-        oled->clearDisplay();
+    if (with_oled) {
+        oled.init();
+        oled.clearDisplay();
     }
 }
 
@@ -35,49 +37,62 @@ void EffectSwitcher::init_register() {
     digitalWrite(pin_register_output_enable, LOW);
 }
 
-void EffectSwitcher::init(ButtonReader* _button_reader, 
-                          BankManager* _bank_manager, 
-                          OLED* _oled) {
-    bank_manager = _bank_manager;
+void EffectSwitcher::init(ButtonReader* _button_reader) {
     button_reader = _button_reader;
-    oled = _oled;
     display("Starting...", true);
     init_register();
+    init_oled();
     unselect_all();
     displayBankNumber();
     Debug::print("GoatFather initialized");
 }
 
+void EffectSwitcher::init_bank_manager(
+    int _start_eeprom_address,
+    int _number_eeprom_banks, 
+    int _patches_per_bank,
+    struct BankDefinition* _additional_banks,
+    int _add_banks_size
+) {
+    bank_manager.init(
+        _start_eeprom_address,
+        _number_eeprom_banks, 
+        _patches_per_bank,
+        _additional_banks,
+        _add_banks_size
+    );
+}
+
 void EffectSwitcher::display(String message, bool clear) {
-    if (oled) {
+    if (with_oled) {
         if (clear) {
-            oled->clearDisplay();
+            oled.clearDisplay();
         }
-        oled->print(message.c_str());
+        oled.print(message.c_str());
     }
 }
 
 void EffectSwitcher::displayBankNumber() {
-    if (oled) {
-        oled->clearDisplay();
-        if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
-            oled->print("No Bank");
+    if (with_oled) {
+        oled.clearDisplay();
+        if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
+            oled.print("No Bank");
             Debug::print("No Bank");
         } else {
-            if (!bank_manager->get_current_bank_name().equals("")) {
-                oled->print(bank_manager->get_current_bank_name().c_str());
-                Debug::print("Bank Name: " + String(bank_manager->get_current_bank_name()));
+            if (!bank_manager.get_current_bank_name().equals("")) {
+                oled.print(bank_manager.get_current_bank_name().c_str());
+                Debug::print("Bank Name: " + String(bank_manager.get_current_bank_name()));
             } else {
-                oled->printBankNumber(bank_manager->get_current_bank_number());
-                Debug::print("Bank Number: " + String(bank_manager->get_current_bank_number()));
+                oled.printBankNumber(bank_manager.get_current_bank_number());
+                Debug::print("Bank Number: " + String(bank_manager.get_current_bank_number()));
             }
         }
     }
 }
 
 void EffectSwitcher::displayEditMode() {
-    if (oled) {
-        oled->printEditMode();
+    if (with_oled) {
+        oled.printEditMode();
     }
 }
 
@@ -92,8 +107,8 @@ void EffectSwitcher::read_and_apply() {
                 if (mode == effects_mode::edit) {
                     save_patch();
                 } else {
-                    bank_manager->previous();
-                    // Debug::print(String("Previous Bank: ") + bank_manager->get_current_bank_number());
+                    bank_manager.previous();
+                    // Debug::print(String("Previous Bank: ") + bank_manager.get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }
@@ -101,8 +116,8 @@ void EffectSwitcher::read_and_apply() {
                 if (mode == effects_mode::edit) {
                     cancel_edit();
                 } else {
-                    bank_manager->next();
-                    // Debug::print(String("Next Bank: ") + bank_manager->get_current_bank_number());
+                    bank_manager.next();
+                    // Debug::print(String("Next Bank: ") + bank_manager.get_current_bank_number());
                     set_bank_mode();
                     unselect_all();
                 }
@@ -143,12 +158,12 @@ void EffectSwitcher::read_and_apply() {
 }
 
 void EffectSwitcher::set_bank_mode() {
-    if (bank_manager->get_current_bank_number() == BASIC_MODE_BANK) {
+    if (bank_manager.get_current_bank_number() == BASIC_MODE_BANK) {
         mode = effects_mode::basic;
         Debug::print("Effect Mode");
     } else {
         mode = effects_mode::bank;
-        Debug::print(String("Bank Mode - Bank ") + bank_manager->get_current_bank_number());
+        Debug::print(String("Bank Mode - Bank ") + bank_manager.get_current_bank_number());
     }
     displayBankNumber();
 }
@@ -175,7 +190,7 @@ void EffectSwitcher::toggle_boost() {
 void EffectSwitcher::save_patch() {
     display("Saving...", true);
     Debug::print("Save Effects");
-    bank_manager->save_effect_selection(current_effects);
+    bank_manager.save_effect_selection(current_effects);
     delay(500);
     cancel_edit();
 }
@@ -183,7 +198,7 @@ void EffectSwitcher::save_patch() {
 void EffectSwitcher::cancel_edit() {
     Debug::print("Cancel Edit");
     mode = effects_mode::bank;
-    select_bank_patch(bank_manager->get_selected_effects());
+    select_bank_patch(bank_manager.get_selected_effects());
     displayBankNumber();
 }
 
@@ -194,7 +209,7 @@ void EffectSwitcher::unselect_all() {
 
 void EffectSwitcher::select_bank_patch(byte patch_number) {
     unselect_all();
-    byte effects = bank_manager->get_selected_effects(patch_number);
+    byte effects = bank_manager.get_selected_effects(patch_number);
     byte patch_activated = 0;
     bitWrite(patch_activated, patch_number, HIGH);
     Debug::print(String("Select effects: ") + effects);

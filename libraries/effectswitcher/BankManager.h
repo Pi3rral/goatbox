@@ -28,12 +28,16 @@ private:
     byte load_effects_from_eeprom();
 
 public:
-    BankManager(int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
-                int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS, 
-                int _patches_per_bank = DEFAULT_PATCHES_PER_BANK);
+    BankManager();
     ~BankManager();
 
-    void init(struct BankDefinition* _additional_banks, int _add_banks_size = 0);
+    void init(
+        int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
+        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS, 
+        int _patches_per_bank = DEFAULT_PATCHES_PER_BANK,
+        struct BankDefinition* _additional_banks = nullptr, 
+        int _add_banks_size = 0
+    );
 
     byte next();
     byte previous();

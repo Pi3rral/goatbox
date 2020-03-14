@@ -3,20 +3,24 @@
 #include "Debug.h"
 
 
-BankManager::BankManager(int _start_eeprom_address, 
-                         int _number_eeprom_banks, 
-                         int _patches_per_bank) {
+BankManager::BankManager() {
     current_bank = 0;
     current_patch = 0;
     number_additional_banks = 0;
-    start_eeprom_address = _start_eeprom_address;
-    number_eeprom_banks = _number_eeprom_banks;
-    patches_per_bank = _patches_per_bank;
 }
 
 BankManager::~BankManager() { }
 
-void BankManager::init(struct BankDefinition* _additional_banks, int _add_banks_size) {
+void BankManager::init(
+    int _start_eeprom_address, 
+    int _number_eeprom_banks, 
+    int _patches_per_bank,
+    struct BankDefinition* _additional_banks, 
+    int _add_banks_size
+) {
+    start_eeprom_address = _start_eeprom_address;
+    number_eeprom_banks = _number_eeprom_banks;
+    patches_per_bank = _patches_per_bank;
     additional_banks = _additional_banks;
     number_additional_banks = _add_banks_size;
     Debug::print(String("Additionnal banks: ") + number_additional_banks);

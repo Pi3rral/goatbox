@@ -28,9 +28,9 @@ enum effects_mode {
 class EffectSwitcher {
 
 protected:
-    BankManager* bank_manager = 0;
+    BankManager bank_manager;
     ButtonReader* button_reader = 0;
-    OLED* oled = 0;
+    OLED oled;
 
     byte pin_register_clock;
     byte pin_register_latch;
@@ -43,6 +43,8 @@ protected:
 
     byte register_1 = 0;
     byte register_2 = 0;
+
+    bool with_oled = true;
 
     void unselect_all();
     virtual void read_basic_mode(int button_actionned);
@@ -66,11 +68,17 @@ public:
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
-        byte _pin_register_data);
+        byte _pin_register_data,
+        bool _with_oled);
     virtual void init(
-        ButtonReader* _button_reader, 
-        BankManager* _bank_manager, 
-        OLED* _oled
+        ButtonReader* _button_reader
+    );
+    void init_bank_manager(
+        int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
+        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS, 
+        int _patches_per_bank = DEFAULT_PATCHES_PER_BANK,
+        struct BankDefinition* _additional_banks = nullptr, 
+        int _add_banks_size = 0
     );
     virtual void read_and_apply();
 
