@@ -138,24 +138,24 @@ void RollerEffectSwitcher::compute_registers(byte patch, byte effects) {
 }
 
 bool RollerEffectSwitcher::is_next_bank_pressed() {
-    if (button_reader->get_action_for_button(2) != button_state::rest
-        && button_reader->get_action_for_button(3) != button_state::rest) {
+    if (button_reader->get_action_for_button(2) == button_state::pressed
+        && button_reader->get_action_for_button(3) == button_state::pressed) {
         return true;
     }
     return false;
 }
 
 bool RollerEffectSwitcher::is_previous_bank_pressed() {
-    if (button_reader->get_action_for_button(0) != button_state::rest
-        && button_reader->get_action_for_button(1) != button_state::rest) {
+    if (button_reader->get_action_for_button(0) == button_state::pressed
+        && button_reader->get_action_for_button(1) == button_state::pressed) {
         return true;
     }
     return false;
 }
 
 bool RollerEffectSwitcher::is_no_bank_pressed() {
-    if (button_reader->get_action_for_button(1) != button_state::rest
-        && button_reader->get_action_for_button(2) != button_state::rest) {
+    if (button_reader->get_action_for_button(1) == button_state::pressed
+        && button_reader->get_action_for_button(2) == button_state::pressed) {
         return true;
     }
     return false;
