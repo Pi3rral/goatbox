@@ -31,7 +31,9 @@ public:
     ButtonReader(byte _number_of_buttons, int _long_press_time = DEFAULT_LONG_PRESS_TIME);
     virtual void init() = 0;
     virtual void read() = 0;
-    int get_actionned_button();
+    byte get_number_of_buttons();
+    bool is_multiple_button_pressed();
+    int get_actioned_button();
     byte get_action_for_button(int _button);
 };
 

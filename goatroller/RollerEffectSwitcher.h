@@ -16,8 +16,11 @@ class RollerEffectSwitcher : public EffectSwitcher {
 
 protected:
     byte edit_led_pin;
-    virtual void compute_registers(byte patch, byte effects);
     unsigned long edit_mode_started = 0;
+    virtual void compute_registers(byte patch, byte effects);
+    bool is_next_bank_pressed();
+    bool is_previous_bank_pressed();
+    bool is_no_bank_pressed();
 
 public:
     RollerEffectSwitcher(
