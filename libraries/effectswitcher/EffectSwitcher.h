@@ -1,14 +1,13 @@
 #ifndef EFFECTSWITCHER_H
 #define EFFECTSWITCHER_H
-
-#include "LiquidCrystal_I2C.h"
+#include <Arduino.h>
 #include "BankManager.h"
 #include "ButtonReader.h"
+#include "OLED.h"
 
 
-#define SERIAL_RATE 115200
 #define READING_RATE 100
-#define READING_WAIT_AFTER_ACTION 500
+#define READING_WAIT_AFTER_ACTION 400
 #define READING_WAIT_AFTER_2_PRESSED 1000
 #define BASIC_MODE_BANK 0
 
@@ -30,9 +29,9 @@ enum effects_mode {
 class EffectSwitcher {
 
 protected:
-    BankManager* bank_manager = 0;
+    BankManager bank_manager;
     ButtonReader* button_reader = 0;
-    LiquidCrystal_I2C* lcd = 0;
+    OLED oled;
 
     byte pin_register_clock;
     byte pin_register_latch;
@@ -46,6 +45,8 @@ protected:
     byte register_1 = 0;
     byte register_2 = 0;
 
+    bool with_oled = true;
+
     void unselect_all();
     virtual void read_basic_mode(int button_actioned);
     virtual void read_edit_mode(int button_actioned);
@@ -56,21 +57,30 @@ protected:
     virtual void compute_registers(byte patch, byte effects);
     virtual void select_patch_and_effect(byte patch, byte effects);
     void select_bank_patch(byte patch_number);
-    void init_lcd();
+    void init_oled();
     void init_register();
-    void display(String message, int row = 0, int col = 0, bool clear = false);
+    void display(String message, bool clear = false);
+    void displayBankNumber();
+    void displayEditMode();
     void clear_display();
 
 public:
     EffectSwitcher(
-        ButtonReader* _button_reader, 
-        BankManager* _bank_manager, 
-        LiquidCrystal_I2C* _lcd,
         byte _pin_register_clock,
         byte _pin_register_latch,
         byte _pin_register_output_enable,
-        byte _pin_register_data);
-    virtual void init();
+        byte _pin_register_data,
+        bool _with_oled);
+    virtual void init(
+        ButtonReader* _button_reader
+    );
+    void init_bank_manager(
+        int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
+        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS,
+        int _patches_per_bank = DEFAULT_PATCHES_PER_BANK,
+        struct BankDefinition* _additional_banks = nullptr,
+        int _add_banks_size = 0
+    );
     virtual void read_and_apply();
 
 };

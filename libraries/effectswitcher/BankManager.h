@@ -1,41 +1,53 @@
 #ifndef GOATBOX_BANKMANAGER_H
 #define GOATBOX_BANKMANAGER_H
-
-#include "Bank.h"
+#include <Arduino.h>
 
 #define DEFAULT_START_EEPROM_ADDRESS 0
 #define DEFAULT_NUMBER_OF_BANKS 8
 #define DEFAULT_PATCHES_PER_BANK 8
-#define DEFAULT_LOAD_PREDEFINED false
+#define MAX_BANK_NAME 40
+
+struct BankDefinition {
+    String name;
+    byte* patches;
+};
 
 
 class BankManager {
 
 private:
-    int total_banks;
-    int patches_per_bank;
-    int current_bank;
-    int start_eeprom_address;
-    Bank** banks;
+    int number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS;
+    int patches_per_bank = DEFAULT_PATCHES_PER_BANK;
+    int start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS;
+    int current_bank = 0;
+    int current_patch = 0;
+    BankDefinition* additional_banks = nullptr;
+    int number_additional_banks = 0;
+
+    int get_eeprom_address();
+    byte load_effects_from_eeprom();
 
 public:
-    BankManager(int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
-                int _total_banks = DEFAULT_NUMBER_OF_BANKS, 
-                int _patches_per_bank = DEFAULT_PATCHES_PER_BANK);
+    BankManager();
     ~BankManager();
 
-    void init(bool _load_predefined = DEFAULT_LOAD_PREDEFINED);
+    void init(
+        int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
+        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS, 
+        int _patches_per_bank = DEFAULT_PATCHES_PER_BANK,
+        struct BankDefinition* _additional_banks = nullptr, 
+        int _add_banks_size = 0
+    );
 
-    Bank * next();
-    Bank * previous();
+    byte next();
+    byte previous();
 
-    Bank * get_current_bank() const;
-    void set_current_bank(int _bank_number);
+    byte get_selected_effects(byte patch_number = 0);
+    byte save_effect_selection(byte _selected_effects);
 
-    int get_current_bank_number() const;
-
-    int get_total_bank() const { return total_banks; };
-    int get_patches_per_bank() const { return patches_per_bank; };
+    int get_current_bank_number() const { return current_bank; };
+    String get_current_bank_name() const;
+    int get_current_patch_number() const { return current_patch; };
 };
 
 #endif //GOATBOX_BANKMANAGER_H
