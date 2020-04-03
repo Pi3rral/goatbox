@@ -49,14 +49,14 @@ void EffectSwitcher::init(ButtonReader* _button_reader) {
 
 void EffectSwitcher::init_bank_manager(
     int _start_eeprom_address,
-    int _number_eeprom_banks, 
+    int _number_eeprom_banks,
     int _patches_per_bank,
     struct BankDefinition* _additional_banks,
     int _add_banks_size
 ) {
     bank_manager.init(
         _start_eeprom_address,
-        _number_eeprom_banks, 
+        _number_eeprom_banks,
         _patches_per_bank,
         _additional_banks,
         _add_banks_size
@@ -99,11 +99,11 @@ void EffectSwitcher::displayEditMode() {
 
 void EffectSwitcher::read_and_apply() {
     button_reader->read();
-    int button_actionned = button_reader->get_actionned_button();
-    if (button_actionned >= 0) {
-        int action = button_reader->get_action_for_button(button_actionned);
+    int button_actioned = button_reader->get_actioned_button();
+    if (button_actioned >= 0) {
+        int action = button_reader->get_action_for_button(button_actioned);
         if (action == button_state::pressed) {
-            if (button_actionned == PREV_BANK_BUTTON) {
+            if (button_actioned == PREV_BANK_BUTTON) {
                 if (mode == effects_mode::edit) {
                     save_patch();
                 } else {
@@ -112,7 +112,7 @@ void EffectSwitcher::read_and_apply() {
                     set_bank_mode();
                     unselect_all();
                 }
-            } else if (button_actionned == NEXT_BANK_BUTTON) {
+            } else if (button_actioned == NEXT_BANK_BUTTON) {
                 if (mode == effects_mode::edit) {
                     cancel_edit();
                 } else {
@@ -121,33 +121,33 @@ void EffectSwitcher::read_and_apply() {
                     set_bank_mode();
                     unselect_all();
                 }
-            } else if (button_actionned == BOOST_BUTTON && mode != effects_mode::edit) {
+            } else if (button_actioned == BOOST_BUTTON && mode != effects_mode::edit) {
                 toggle_boost();
             } else {
                 switch(mode) {
                     case effects_mode::basic: {
                         Debug::print("Read Basic Mode");
-                        read_basic_mode(button_actionned);
+                        read_basic_mode(button_actioned);
                         break;            
                     }
                     case effects_mode::bank: {
                         Debug::print("Read Bank Mode");
-                        if (bitRead(current_patch, button_actionned)) {
+                        if (bitRead(current_patch, button_actioned)) {
                             unselect_all();
                         } else {
-                            select_bank_patch(button_actionned);
+                            select_bank_patch(button_actioned);
                         }
                         break;
                     }
                     case effects_mode::edit: {
                         Debug::print("Read Edit Mode");
-                        read_edit_mode(button_actionned);
+                        read_edit_mode(button_actioned);
                         break;
                     }
                 }
             }
         } else if (action == button_state::long_pressed && mode == effects_mode::bank) {
-            if (button_actionned != NEXT_BANK_BUTTON && button_actionned != PREV_BANK_BUTTON) {
+            if (button_actioned != NEXT_BANK_BUTTON && button_actioned != PREV_BANK_BUTTON) {
                 Debug::print("Now in EDIT MODE");
                 displayEditMode();
                 mode = effects_mode::edit;
@@ -168,16 +168,16 @@ void EffectSwitcher::set_bank_mode() {
     displayBankNumber();
 }
 
-void EffectSwitcher::read_basic_mode(int button_actionned) {
-    byte next_state = bitRead(current_patch, button_actionned) ? LOW : HIGH;
-    bitWrite(current_patch, button_actionned, next_state);
-    bitWrite(current_effects, button_actionned, next_state);
+void EffectSwitcher::read_basic_mode(int button_actioned) {
+    byte next_state = bitRead(current_patch, button_actioned) ? LOW : HIGH;
+    bitWrite(current_patch, button_actioned, next_state);
+    bitWrite(current_effects, button_actioned, next_state);
     select_patch_and_effect(current_patch, current_effects);
 }
 
-void EffectSwitcher::read_edit_mode(int button_actionned) {
-    byte effect_state = bitRead(current_effects, button_actionned) ? LOW : HIGH;
-    bitWrite(current_effects, button_actionned, effect_state);
+void EffectSwitcher::read_edit_mode(int button_actioned) {
+    byte effect_state = bitRead(current_effects, button_actioned) ? LOW : HIGH;
+    bitWrite(current_effects, button_actioned, effect_state);
     select_patch_and_effect(current_patch, current_effects);
 }
 

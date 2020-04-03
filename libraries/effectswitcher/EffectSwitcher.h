@@ -8,6 +8,7 @@
 
 #define READING_RATE 100
 #define READING_WAIT_AFTER_ACTION 400
+#define READING_WAIT_AFTER_2_PRESSED 1000
 #define BASIC_MODE_BANK 0
 
 #define PREV_BANK_BUTTON 8
@@ -47,8 +48,8 @@ protected:
     bool with_oled = true;
 
     void unselect_all();
-    virtual void read_basic_mode(int button_actionned);
-    virtual void read_edit_mode(int button_actionned);
+    virtual void read_basic_mode(int button_actioned);
+    virtual void read_edit_mode(int button_actioned);
     virtual void set_bank_mode();
     void toggle_boost();
     void save_patch();
@@ -75,9 +76,9 @@ public:
     );
     void init_bank_manager(
         int _start_eeprom_address = DEFAULT_START_EEPROM_ADDRESS,
-        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS, 
+        int _number_eeprom_banks = DEFAULT_NUMBER_OF_BANKS,
         int _patches_per_bank = DEFAULT_PATCHES_PER_BANK,
-        struct BankDefinition* _additional_banks = nullptr, 
+        struct BankDefinition* _additional_banks = nullptr,
         int _add_banks_size = 0
     );
     virtual void read_and_apply();
