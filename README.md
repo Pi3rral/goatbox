@@ -1,1 +1,1 @@
-# goatbox
+# Guitar Pedals Switcher
