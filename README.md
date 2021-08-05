@@ -17,7 +17,7 @@ export ARDUINO_DIRECTORIES_USER=~/Documents/goatbox
 Then build with
 
 ```
-arduino-cli compile --fqbn arduino:avr:pro  midi-controller
+arduino-cli compile --fqbn arduino:avr:pro  goatroller
 ```
 
 ## Upload
@@ -31,5 +31,5 @@ arduino-cli board list
 Upload
 
 ```
-arduino-cli upload -p /dev/cu.usbserial-1420 --fqbn arduino:avr:pro  midi-controller
+arduino-cli upload -p /dev/cu.usbserial-1420 --fqbn arduino:avr:pro  goatroller
 ```
