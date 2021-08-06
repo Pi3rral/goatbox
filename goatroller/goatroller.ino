@@ -2,6 +2,7 @@
 #include "ButtonReader.h"
 #include "BankManager.h"
 #include <SoftwareSerial.h>
+#include <MIDI.h>
 
 // ButtonReader parameters
 #define NUMBER_OF_BUTTON 4
@@ -40,30 +41,31 @@ RollerEffectSwitcher effect_switcher(
     DATA_PIN,
     EDIT_LED_PIN);
 
-byte commandByte;
-byte noteByte;
-byte velocityByte;
+SoftwareSerial midiSerial(11, 12); //RX, TX
 
-SoftwareSerial mySerial(11, 12); //RX, TX
+MIDI_CREATE_INSTANCE(SoftwareSerial, midiSerial, midiSoft);
 
 void setup()
 {
     effect_switcher.init();
-    mySerial.begin(31250);
+    midiSoft.begin(); // Launch MIDI, by default listening to channel 1.
+    midiSoft.setInputChannel(1);
 }
 
 void checkMIDI()
 {
-    do
+    if (midiSoft.read()) // Is there a MIDI message incoming ?
     {
-        if (mySerial.available())
+        switch (midiSoft.getType()) // Get the type of the message we caught
         {
-            commandByte = mySerial.read();  //read first byte
-            noteByte = mySerial.read();     //read next byte
-            velocityByte = mySerial.read(); //read final byte
-            Serial.println(String("Midi Message ") + commandByte + ", " + noteByte + ", " + velocityByte);
+        case midi::ProgramChange: // If it is a Program Change,
+            Serial.println(String("Midi PC Message ") + midiSoft.getData1());
+            break;
+        // See the online reference for other message types
+        default:
+            break;
         }
-    } while (mySerial.available() > 2); //when at least three bytes available
+    }
 }
 
 void loop()
