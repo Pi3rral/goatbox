@@ -6,6 +6,7 @@
 
 // ButtonReader parameters
 #define NUMBER_OF_BUTTON 4
+#define NUMBER_OF_LOOPS 4
 #define NUMBER_OF_SHIFT_REGISTER 2
 
 #define BUTTON0_PIN 7
@@ -26,6 +27,11 @@
 
 #define EDIT_LED_PIN 6
 
+// Midi Constants
+#define MIDI_RX_PIN 11
+#define MIDI_TX_PIN 12
+#define MIDI_CC_VALUE_TOGGLE 64
+
 int buttons[NUMBER_OF_BUTTON] = {BUTTON0_PIN, BUTTON1_PIN, BUTTON2_PIN, BUTTON3_PIN};
 ButtonReader *button_reader = new ButtonReaderPins(
     NUMBER_OF_BUTTON,
@@ -41,15 +47,15 @@ RollerEffectSwitcher effect_switcher(
     DATA_PIN,
     EDIT_LED_PIN);
 
-SoftwareSerial midiSerial(11, 12); //RX, TX
+SoftwareSerial midiSerial(MIDI_RX_PIN, MIDI_TX_PIN);
 
 MIDI_CREATE_INSTANCE(SoftwareSerial, midiSerial, midiSoft);
 
 void setup()
 {
     effect_switcher.init();
-    midiSoft.begin(); // Launch MIDI, by default listening to channel 1.
-    midiSoft.setInputChannel(1);
+    midiSoft.begin();
+    midiSoft.setInputChannel(3);
 }
 
 void checkMIDI()
@@ -58,8 +64,25 @@ void checkMIDI()
     {
         switch (midiSoft.getType()) // Get the type of the message we caught
         {
-        case midi::ProgramChange: // If it is a Program Change,
+        case midi::ProgramChange:
             Serial.println(String("Midi PC Message ") + midiSoft.getData1());
+            effect_switcher.select_patch_and_effect(0, midiSoft.getData1());
+            break;
+        case midi::ControlChange:
+            byte cc_number = midiSoft.getData1();
+            byte cc_value = midiSoft.getData2();
+            Serial.println(String("Midi CC Message ") + cc_number + ", " + cc_value);
+            if (cc_number > 0 && cc_number <= NUMBER_OF_LOOPS)
+            {
+                if (cc_value == MIDI_CC_VALUE_TOGGLE)
+                {
+                    effect_switcher.toggle_loop(cc_number);
+                }
+                else
+                {
+                    effect_switcher.set_loop_state(cc_number, (cc_value < MIDI_CC_VALUE_TOGGLE) ? LOW : HIGH);
+                }
+            }
             break;
         // See the online reference for other message types
         default:

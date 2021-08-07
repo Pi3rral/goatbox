@@ -155,7 +155,19 @@ void EffectSwitcher::read_edit_mode(int button_actioned) {
     select_patch_and_effect(current_patch, current_effects);
 }
 
+void EffectSwitcher::toggle_loop(byte loop_number) {
+    byte next_state = bitRead(current_effects, loop_number) ? LOW : HIGH;
+    bitWrite(current_effects, loop_number, next_state);
+    select_patch_and_effect(current_patch, current_effects);
+}
+
+void EffectSwitcher::set_loop_state(byte loop_number, int loop_state) {
+    bitWrite(current_effects, loop_number, loop_state);
+    select_patch_and_effect(current_patch, current_effects);
+}
+
 void EffectSwitcher::toggle_boost() {
+    // TODO: Use toggle_loop function
     byte boost_state = bitRead(current_effects, BOOST_PATCH_POSITION) ? LOW : HIGH;
     bitWrite(current_effects, BOOST_PATCH_POSITION, boost_state);
     select_patch_and_effect(current_patch, current_effects);
